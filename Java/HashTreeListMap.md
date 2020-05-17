@@ -39,3 +39,6 @@ HashSet判断相等：对象的equals()比较之后相等，而且hashCode()的�
 ---
 
 #### TreeSet
+
+是SortedSet接口的实现类；<font color="yellow"><u>有序(自然排序)</u></font>
+
