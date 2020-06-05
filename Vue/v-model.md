@@ -145,6 +145,8 @@ new Vue({
 </script>
 ```
 
+![https://github.com/Daryliu/Typora-Essay/blob/master/Java/photo/v-model.png]()
+
 ##### 修饰符
 
 ###### v-model.lazy
