@@ -23,13 +23,13 @@ node add.js（文件名）
 ```js
 //fs是file-system，在node中若想对文件操作，必须引入fs，其提供了文件操作相关的API
 var fs = require('fs');//require方法 加载文件操作的fs核心模块
-
-fs.readFile('xxx',function(error,data){//读取xxx文件,第一个参数是要读取的文件路径，第个参数是回调函数。（error若读取成功，error为null，若读取失败error就是错误对象     data若读取成功，data为读取到的对象，若读取失败data就是undefined）
+//异步读文件
+fs.readFile('xxx','utf-8',function(error,data){//读取xxx文件,第一个参数是要读取的文件路径，第个参数是回调函数。（error若读取成功，error为null，若读取失败error就是错误对象     data若读取成功，data为读取到的对象，若读取失败data就是undefined）
     if(error) {//此处用到的是非阻塞代码示例
         console.log('读取文件失败');
     } else {
         console.log(data.toString());
-    }
+    }//若文件是二进制文件时，回调函数的data参数返回一个Buffer对象，即是包含0个或任意个字节的数组。
 });
 ```
 
@@ -54,7 +54,19 @@ fs.writeFile('./data/hello.txt','大家好，给大家拜年了',function(error)
 
 【1公开文件】`exports`对象用来**指定<font color="greenyellow">单个</font>>导出**当前模块的公共方法或属性，用法：`exports.name`，name为导出的对象名（系统默认设置了`exports=module.exports`）<u>公开了它指向的对象的属性</u>
 
-`module.exports`用来**默认导出**一个对象，没有指定对象名，常见于修改模块的原始导出对象，比如原本模块导出的一个对象，可以通过module.exports修改为导出一个函数。<u>公开了它指向的对象</u>
+```js
+exports.hello = hello;
+exports.greet = greet;
+```
+
+`module.exports`用来**默认导出**一个函数、数组或对象，没有指定对象名，常见于修改模块的原始导出对象，比如原本模块导出的一个对象，可以通过module.exports修改为导出一个函数。<u>公开了它指向的对象</u>
+
+```js
+module.exports = {
+    hello: hello,
+    greet: greet
+};
+```
 
 #### 6、Node.js REPL交互式解释器
 
@@ -127,4 +139,67 @@ npm run 任务名(如dev/start)
 //2  全局安装时npm install -g lodash
 Windows上安装的位置是C:\Users\dn3\AppData\Roaming\npm\node_modules
 ```
+
+#### 9、基本模块
+
+1、`process`也是Node.js提供的一个对象，它**代表当前Node.js进程**。通过`process`对象可以拿到许多有用信息：
+
+```js
+> process === global.process;
+true
+> process.version;
+'v5.2.0'
+> process.platform;
+'darwin'
+> process.arch;
+'x64'
+> process.cwd(); //返回当前工作目录
+'/Users/michael'
+> process.chdir('/private/tmp'); // 切换当前工作目录
+undefined
+> process.cwd();
+'/private/tmp'
+```
+
+在下一次事件响应中执行代码，可以调用`process.nextTick()`
+
+```js
+// process.nextTick()将在下一轮事件循环中调用:
+process.nextTick(function () {
+    console.log('nextTick callback!');
+});
+console.log('nextTick was set!');
+打印输出：
+nextTick was set!
+nextTick callback!
+```
+
+##### fs
+
+如果我们要获取文件大小，创建时间等信息，可以使用`fs.stat()`，它返回一个`Stat`对象，能告诉我们文件或目录的详细信息
+
+```js
+var fs = require('fs');
+
+fs.stat('sample.txt', function (err, stat) {
+    if (err) {
+        console.log(err);
+    } else {
+        // 是否是文件:
+        console.log('isFile: ' + stat.isFile());
+        // 是否是目录:
+        console.log('isDirectory: ' + stat.isDirectory());
+        if (stat.isFile()) {
+            // 文件大小:
+            console.log('size: ' + stat.size);
+            // 创建时间, Date对象:
+            console.log('birth time: ' + stat.birthtime);
+            // 修改时间, Date对象:
+            console.log('modified time: ' + stat.mtime);
+        }
+    }
+});
+```
+
+##### stream
 
