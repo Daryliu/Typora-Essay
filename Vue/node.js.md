@@ -1,5 +1,7 @@
 ### node.js（面向服务端）
 
+node.js是单进程单线程应用程序，通过事件和回调可支持并发。每一个 API 都是异步的，并作为一个独立线程运行，使用异步函数调用，并处理并发。
+
 #### 1、通过命令行运行Node.js脚本（找到文件所在位置）
 
 ```js
@@ -32,6 +34,50 @@ fs.readFile('xxx','utf-8',function(error,data){//读取xxx文件,第一个参数
     }//若文件是二进制文件时，回调函数的data参数返回一个Buffer对象，即是包含0个或任意个字节的数组。
 });
 ```
+
+##### 读取目录
+
+```js
+var fs = require("fs");
+//异步读取
+fs.readdir("./tmp",function(err,files){
+    if(err) {
+        return console.error(err);
+    }
+    files.foreach(function (file){
+        console.log(file);//循环读取files中的文件
+    })
+})
+```
+
+##### 删除目录
+
+```js
+var fs = require("fs");
+
+fs.rmdir("../../tmp",function(err){
+    if(err) {
+        console.error(err);
+    }
+    console.log("删除")；
+})
+```
+
+##### 删除文件
+
+```js
+var fs = require("fs");
+
+console.log("准备删除文件！");
+fs.unlink('input.txt', function(err) {//unlink用于删除
+   if (err) {
+       return console.error(err);
+   }
+   console.log("文件删除成功！");
+});
+```
+
+
 
 #### 4、写文件
 
@@ -96,10 +142,23 @@ tab 键 - 列出当前命令
 #### 7、在node中从命令行接收输入
 
 ```js
-let readline = require('readline');//readline模块每次一行的哦那个可读流获取输入
+let readline = require('readline');//readline模块每次一行的从可读流获取输入（也就是从终端中获取输入输出）
+//实例化接口对象
+var rl = readline.createInterface({
+    input: process.stdin,  //设置输入输出为：进程终端的输入输出
+    output: process.stdout
+});
+//question方法
+rl.question("你的名字是",function(answer){//`question()`方法显示第一参数并等待用户的输入
+    console.log("答案是："+answer);
+    rl.close();
+})
+//close事件监听
+rl.on("close",function(){
+    //表示close时结束程序
+    process.exit(0);
+})
 ```
-
-`question()`方法显示第一参数并等待用户的输入
 
 #### 8、npm包管理器
 
@@ -161,7 +220,7 @@ undefined
 '/private/tmp'
 ```
 
-在下一次事件响应中执行代码，可以调用`process.nextTick()`
+在下一次**事件循环**响应中执行代码，可以调用`process.nextTick()`
 
 ```js
 // process.nextTick()将在下一轮事件循环中调用:
@@ -174,7 +233,7 @@ nextTick was set!
 nextTick callback!
 ```
 
-##### fs
+##### 9.1 fs
 
 如果我们要获取文件大小，创建时间等信息，可以使用`fs.stat()`，它返回一个`Stat`对象，能告诉我们文件或目录的详细信息
 
@@ -201,5 +260,148 @@ fs.stat('sample.txt', function (err, stat) {
 });
 ```
 
-##### stream
+##### 9.2  stream（流）
 
+含义：相当于读取大数据时像河流一样一点一点读取，防止吃内存
+
+**流类型：**
+
+- **Readable** - 可读操作。
+- **Writable** - 可写操作。
+- **Duplex** - 可读可写操作.
+- **Transform** - 操作被写入数据，然后读出结果。
+
+所有的 Stream 对象都是 EventEmitter 的实例。常用的事件有：
+
+- **data** - 当有数据可读时触发。
+- **end** - 没有更多的数据可读时触发。
+- **error** - 在接收和写入过程中发生错误时触发。
+- **finish** - 所有数据已被写入到底层系统时触发。
+
+##### 从流中读取数据
+
+```js
+var fs = require("fs");
+var data = '';
+
+// 创建可读流
+var readerStream = fs.createReadStream('input.txt');
+
+// 设置编码为 utf8。
+readerStream.setEncoding('UTF8');
+
+// 处理流事件 --> 流有data, end,  error三种状态
+readerStream.on('data', function(chunk) {     //chunk是一段一段流入的文件流
+   data += chunk;
+});
+
+readerStream.on('end',function(){
+   console.log(data);
+});
+
+readerStream.on('error', function(err){
+   console.log(err.stack);
+});
+
+console.log("程序执行完毕");
+```
+
+##### 写入流
+
+```js
+var fs = require("fs");
+var data = 'www.sxt.com';
+
+// 创建一个可以写入的流，写入到文件 output.txt 中
+var ws = fs.createWriteStream('output.txt',{flags:"w",encoding:"utf-8"});       //文件路径		flags:"w"表示写
+
+// 使用 utf8 编码写入数据
+ws.write("写入hellonode.js",'UTF8');      //文件配置
+
+// 标记文件末尾
+ws.end();
+
+ws.on('open', function() {//监听打开事件
+    console.log("文件打开了。");
+});
+
+ws.on('close', function() {//监听关闭事件
+    console.log("文件关闭了。");
+});
+
+// 处理流事件 --> data, end, error
+ws.on('finish', function() {
+    console.log("写入完成。");
+});
+
+ws.on('error', function(err){
+   console.log(err.stack);
+});
+
+console.log("程序执行完毕");
+```
+
+##### 管道流
+
+管道提供了一个输出流到输入流的机制。<u>通常我们用于从一个流中获取数据并将数据传递到另外一个流中。</u>
+
+```js
+var fs = require("fs");
+
+// 创建一个可读流
+var rs = fs.createReadStream('input.txt');
+
+// 创建一个可写流
+var ws = fs.createWriteStream('output.txt');
+
+// 管道读写操作
+// 读取 input.txt 文件内容，并将内容写入到 output.txt 文件中
+rs.pipe(ws);
+
+console.log("程序执行完毕");
+```
+
+##### 链式流
+
+<u>链式是通过连接输出流到另外一个流并创建多个流操作链的机制</u>。链式流一般用于管道操作。
+
+```js
+//使用管道和链式压缩文件
+var fs = require("fs");
+var zlib = require('zlib');
+
+// 压缩 input.txt 文件为 input.txt.gz
+fs.createReadStream('input.txt')
+  .pipe(zlib.createGzip())
+  .pipe(fs.createWriteStream('input.txt.gz'));
+  
+console.log("文件压缩完成。");
+```
+
+```js
+//使用管道和链式解压文件
+var fs = require("fs");
+var zlib = require('zlib');
+
+// 解压 input.txt.gz 文件为 input.txt
+fs.createReadStream('input.txt.gz')
+  .pipe(zlib.createGunzip())
+  .pipe(fs.createWriteStream('input.txt'));
+  
+console.log("文件解压完成。");
+```
+
+#### 10、node事件
+
+node是单线程单进程应用程序；有回调的都是事件。其都是用<u>观察者模式</u>实现；
+
+##### 事件驱动程序
+
+若Node.js 有多个内置的事件，我们可以通过引入 events 模块，并通过实例化 EventEmitter 类来绑定和监听事件，如下实例：
+
+```js
+// 引入 events 模块  处理多个内直的事件
+var events = require('events');
+// 创建 eventEmitter 对象
+var eventEmitter = new events.EventEmitter();
+```
