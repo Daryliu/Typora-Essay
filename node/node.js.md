@@ -400,8 +400,61 @@ node是单线程单进程应用程序；有回调的都是事件。其都是用<
 若Node.js 有多个内置的事件，我们可以通过引入 events 模块，并通过实例化 EventEmitter 类来绑定和监听事件，如下实例：
 
 ```js
-// 引入 events 模块  处理多个内直的事件
+// 引入 events 模块  处理多个内置的事件
 var events = require('events');
 // 创建 eventEmitter 对象
 var eventEmitter = new events.EventEmitter();
+// 绑定事件及事件的处理程序
+eventEmitter.on('eventName', eventHandler);
+// 触发事件
+eventEmitter.emit('eventName');
 ```
+
+
+
+
+
+
+
+#### 11、路径模块和系统模块
+
+`path`提供对<u>路径</u>的操作，`os`提供了<u>操作系统</u>相关的API。
+
+##### path
+
+```js
+let path = require('path')
+path.extname()获取文件/路径文件的扩展名  //如获取.md  .txt											1
+
+path.resolve([...paths])   //把一个路径或路径片段的序列解析从左往右处理为一个绝对路径					2  ...是解构数组
+例子：path.resolve('foo','/baz','bar');  //完成后为'C:\baz\bar'   
+	
+path.join([...paths])  //使用平台特定的分隔符把全部给定的path片段连接到一起并生成规范化的路径（常用）		3
+参数1：__dirname获取当前执行文件所在目录完整目录名
+参数：__filename获得当前执行文件的带有完整绝对路径的文件名（到本文件名）
+process.cwd()获得当前执行的node命令时候的文件夹目录名
+例子1：path.join(__dirname,'./02art-template.js')
+//结果为'C:\Users\dn3\Desktop\nodestudy\02art-template.js'
+例子2：path.join('/foo','bar','./baz')
+//结果为 '/foo/bar/baz'
+```
+
+##### os
+
+```js
+let os = require('os')
+os.cpus()//获得操作系统的cpu信息
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
