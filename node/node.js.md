@@ -2,6 +2,8 @@
 
 node.js是单进程单线程应用程序，通过事件和回调可支持并发。每一个 API 都是异步的，并作为一个独立线程运行，使用异步函数调用，并处理并发。
 
+没有dom和bom
+
 #### 1、通过命令行运行Node.js脚本（找到文件所在位置）
 
 ```js
@@ -448,7 +450,47 @@ os.cpus()//获得操作系统的cpu信息
 
 
 
+#### 12、创建编写服务器
 
+##### http
+
+```js
+var http = require('http')			//		1 创建server
+var server = http.createServer()//创建一个web服务器，返回一个server实例
+
+//2监听request请求事件，设置处理函数
+//当客户端请求过来，自动触发服务器request请求事件，然后执行并回调function函数		  				//第3步服务器启动后输入网址就会触发
+server.on('request',function(request,response){	// 函数中request获取客户端请求信息，如请求路径request.url等；response发送响应信息
+    conlose.log('收到客户端的请求，路径是' + request.url)   	
+    
+    //response有一个方法write可以给客户端发送响应数据，write可以多次，但是要有end结束响应，否则会一致等待
+    //response.write('hello node.js')
+    //response.end()
+    
+    //-----------------结合不同的url来实现不同的响应内容----------------------------
+    var URL = req.url;  //定义URL为请求路径
+    if(URL === "/"){
+        // res.write('hello！欢迎来到首页')
+        // res.end()
+
+        // 上面的方式比较麻烦，推荐使用更简单的方式，直接 end 的同时发送响应数据
+        // res.end('hello！欢迎来到首页') 在响应结束同时发送数据
+        res.end("hello！欢迎来到首页")
+    } else if(URL === "/page1"){
+        res.end("这里是召唤师峡谷")
+    } else if(URL === "/page2"){
+        res.end("这里是王者峡谷")
+    } else{
+        res.end("404 ！ 恭喜恭喜，峡谷不见了") //404 没有url地址时返回
+    } 
+}) 
+
+//3	绑定端口号，启动服务器						
+server.listen(3000,function(){
+    conlose.log('服务器启动成功！')
+})
+
+```
 
 
 
