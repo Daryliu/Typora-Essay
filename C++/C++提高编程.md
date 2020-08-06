@@ -649,7 +649,8 @@ T    ---   通用的数据类型，名称可以替换，通常为大写字母
 ```C++
 #include <string>
 //类模板
-template<class NameType, class AgeType> 
+template<class NameType, class AgeType>   //类模板声明****************
+    
 class Person
 {
 public:
@@ -1090,7 +1091,7 @@ int main() {
 
 
 
-#### 1.3.7 类模板分文件编写
+#### 1.3.7<font color = "red"> 类模板分文件编写</font>
 
 学习目标：
 
@@ -1284,7 +1285,7 @@ int main() {
 
 
 
-#### 1.3.9 类模板案例
+#### 1.3.9 <font color = "red">类模板案例</font>
 
 案例描述:  实现一个通用的数组类，要求如下：
 
@@ -1532,7 +1533,7 @@ int main() {
 
 * 为了建立数据结构和算法的一套标准,诞生了**STL**
 
-  ​
+  
 
 
 ### 2.2 STL基本概念
@@ -1578,7 +1579,7 @@ STL**容器**就是将运用**最广泛的一些数据结构**实现出来
 这些容器分为**序列式容器**和**关联式容器**两种:
 
 ​	**序列式容器**:强调值的排序，序列式容器中的每个元素均有固定的位置。
-	**关联式容器**:二叉树结构，各元素之间没有严格的物理上的顺序关系
+​	**关联式容器**:二叉树结构，各元素之间没有严格的物理上的顺序关系
 
 
 
@@ -1675,7 +1676,7 @@ void test01() {
 
 	//第一种遍历方式：
 	while (pBegin != pEnd) {
-		cout << *pBegin << endl;
+		cout << *pBegin << endl;  //迭代器取值相当于指针解引用取值
 		pBegin++;
 	}
 
@@ -1739,7 +1740,7 @@ void test01() {
 	Person p3("ccc", 30);
 	Person p4("ddd", 40);
 	Person p5("eee", 50);
-
+	//插入数据
 	v.push_back(p1);
 	v.push_back(p2);
 	v.push_back(p3);
@@ -1748,7 +1749,7 @@ void test01() {
 
 	for (vector<Person>::iterator it = v.begin(); it != v.end(); it++) {
 		cout << "Name:" << (*it).mName << " Age:" << (*it).mAge << endl;
-
+		//或者cout << "Name:" << it->mName << "Age:" << it->mAge << endl;
 	}
 }
 
@@ -1864,6 +1865,7 @@ int main() {
 **本质：**
 
 * string是C++风格的字符串，而string本质上是一个类
+* **相当于一个`vector<char>`**
 
 
 
@@ -2978,7 +2980,7 @@ int main() {
 
 * `reserve(int len);`//容器预留len个元素长度，预留位置不初始化，元素不可访问。
 
-  ​
+  
 
 **示例：**
 
@@ -3231,7 +3233,7 @@ int main() {
 
   ​                                                     //如果容器变短，则末尾超出容器长度的元素被删除。
 
-  ​
+  
 
 
 
@@ -3333,9 +3335,9 @@ int main() {
 
 * `erase(pos);`                    //删除pos位置的数据，返回下一个数据的位置。
 
-  ​
+  
 
-  ​
+  
 
 
 
@@ -6964,7 +6966,7 @@ int main() {
 
   // end 结束迭代器
 
-  ​
+  
 
 
 
@@ -7218,7 +7220,7 @@ int main() {
 
   // _Pred 谓词
 
-  ​
+  
 
 **示例：**
 
@@ -7436,7 +7438,7 @@ int main() {
 
   // end 结束迭代器
 
-  ​
+  
 
 **示例：**
 
@@ -7519,7 +7521,7 @@ int main() {
   // end2   容器2结束迭代器
   // dest    目标容器开始迭代器
 
-  ​
+  
 
 **示例：**
 
@@ -7595,7 +7597,7 @@ int main() {
 
   // end 结束迭代器
 
-  ​
+  
 
 **示例：**
 
@@ -7937,7 +7939,7 @@ int main() {
 
   // c2容器2
 
-  ​
+  
 
 **示例：**
 
@@ -8021,7 +8023,7 @@ int main() {
 
 - `fill`                 // 向容器中添加元素
 
-  ​
+  
 
 #### 5.5.1 accumulate
 
@@ -8158,7 +8160,7 @@ int main() {
 
 - `set_difference `              // 求两个容器的差集
 
-  ​
+  
 
 
 
@@ -8273,7 +8275,7 @@ int main() {
   // end2 容器2结束迭代器
   // dest 目标容器开始迭代器
 
-  ​
+  
 
 **示例：**
 
@@ -8356,7 +8358,7 @@ int main() {
   // end2 容器2结束迭代器
   // dest 目标容器开始迭代器
 
-  ​
+  
 
 **示例：**
 

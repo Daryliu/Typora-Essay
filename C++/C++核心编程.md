@@ -9,8 +9,8 @@
 C++程序在执行时，将内存大方向划分为**4个区域**
 
 - 代码区：存放函数体的二进制代码，由操作系统进行管理的
-- 全局区：存放全局变量和静态变量以及常量
-- 栈区：由编译器自动分配释放, 存放函数的参数值,局部变量等
+- 全局区：存放**全局变量和静态变量以及常量**
+- 栈区：由编译器自动分配释放, 存放函数的**参数值,局部变量**等
 - 堆区：由程序员分配和释放,若程序员不释放,程序结束时由操作系统回收
 
 
@@ -389,7 +389,7 @@ void mySwap02(int* a, int* b) {
 }
 
 //3. 引用传递
-void mySwap03(int& a, int& b) {
+void mySwap03(int &a, int &b) {
 	int temp = a;
 	a = b;
 	b = temp;
@@ -401,7 +401,7 @@ int main() {
 	int b = 20;
 
 	mySwap01(a, b);
-	cout << "a:" << a << " b:" << b << endl;
+	cout << "a:" << a << " b:" << b << endl;//不改变值
 
 	mySwap02(&a, &b);
 	cout << "a:" << a << " b:" << b << endl;
@@ -451,31 +451,31 @@ int main() {
 ```C++
 //返回局部变量引用
 int& test01() {
-	int a = 10; //局部变量
+	int a = 10; //局部变量  存放于栈中  用完释放
 	return a;
 }
 
 //返回静态变量引用
 int& test02() {
-	static int a = 20;
+	static int a = 20;//生命周期延长，静态变量，存放于全局区
 	return a;
 }
 
 int main() {
 
 	//不能返回局部变量的引用
-	int& ref = test01();
-	cout << "ref = " << ref << endl;
-	cout << "ref = " << ref << endl;
+	int& ref = test01();		//ref为别名
+	cout << "ref = " << ref << endl;//10   只是因为编译器做了保留，实际已经释放，没有权限再操作局部变量
+	cout << "ref = " << ref << endl;//乱码
 
 	//如果函数做左值，那么必须返回引用
 	int& ref2 = test02();
-	cout << "ref2 = " << ref2 << endl;
+	cout << "ref2 = " << ref2 << endl;//上下值相同
 	cout << "ref2 = " << ref2 << endl;
 
-	test02() = 1000;
+	test02() = 1000;//作为左值   因为返回的是a的引用
 
-	cout << "ref2 = " << ref2 << endl;
+	cout << "ref2 = " << ref2 << endl;//输出1000
 	cout << "ref2 = " << ref2 << endl;
 
 	system("pause");
@@ -557,15 +557,15 @@ int main(){
 ```C++
 //引用使用的场景，通常用来修饰形参
 void showValue(const int& v) {
-	//v += 10;
+	//v += 10;  加了const即使对v进行操作也不会修改
 	cout << v << endl;
 }
 
 int main() {
 
 	//int& ref = 10;  引用本身需要一个合法的内存空间，因此这行错误
-	//加入const就可以了，编译器优化代码，int temp = 10; const int& ref = temp;
-	const int& ref = 10;
+	//加入const就可以了，编译器优化代码，自动int temp = 10; const int& ref = temp;
+	const int& ref = 10;//引用的是一个零时的空间
 
 	//ref = 100;  //加入const后不可以修改变量
 	cout << ref << endl;
@@ -607,7 +607,7 @@ int func(int a, int b = 10, int c = 10) {
 	return a + b + c;
 }
 
-//1. 如果某个位置参数有默认值，那么从这个位置往后，从左向右，必须都要有默认值
+//1. -------如果某个位置参数有默认值，那么从这个位置往后，从左向右，必须都要有默认值-------
 //2. 如果函数声明有默认值，函数实现的时候就不能有默认参数
 int func2(int a = 10, int b = 10);
 int func2(int a, int b) {
@@ -616,8 +616,8 @@ int func2(int a, int b) {
 
 int main() {
 
-	cout << "ret = " << func(20, 20) << endl;
-	cout << "ret = " << func(100) << endl;
+	cout << "ret = " << func(20, 20) << endl;//b用传的20，所以输出50（传了就用传的，没传就用默认的值）
+	cout << "ret = " << func(100) << endl;//输出120
 
 	system("pause");
 
@@ -635,7 +635,7 @@ int main() {
 
 
 
-C++中函数的形参列表里可以有占位参数，用来做占位，调用函数时必须填补该位置
+C++中函数的形参列表里可以有占位参数，用来做**占位，调用函数时必须填补该位置**
 
 
 
@@ -651,13 +651,13 @@ C++中函数的形参列表里可以有占位参数，用来做占位，调用�
 
 ```C++
 //函数占位参数 ，占位参数也可以有默认参数
-void func(int a, int) {
+void func(int a, int) {		//--------只填了数据类型，没有变量-------------
 	cout << "this is func" << endl;
 }
 
 int main() {
 
-	func(10,10); //占位参数必须填补
+	func(10,10); //占位参数必须填补，即后面的一个10
 
 	system("pause");
 
@@ -687,7 +687,7 @@ int main() {
 
 * 同一个作用域下
 * 函数名称相同
-* 函数参数**类型不同**  或者 **个数不同** 或者 **顺序不同**
+* 函数**参数类型不同**  或者 **个数不同** 或者 **顺序不同**
 
 
 
@@ -707,15 +707,15 @@ void func(int a)
 {
 	cout << "func (int a) 的调用！" << endl;
 }
-void func(double a)
+void func(double a)  //参数类型不同
 {
 	cout << "func (double a)的调用！" << endl;
 }
-void func(int a ,double b)
+void func(int a ,double b)  //参数个数不同
 {
 	cout << "func (int a ,double b) 的调用！" << endl;
 }
-void func(double a ,int b)
+void func(double a ,int b)  //参数顺序不同
 {
 	cout << "func (double a ,int b)的调用！" << endl;
 }
@@ -1219,7 +1219,7 @@ c++利用了**构造函数**和**析构函数**解决上述问题，这两个函
 
 
 
-* 构造函数：主要作用在于创建对象时为对象的成员属性赋值，构造函数由编译器自动调用，无须手动调用。
+* 构造函数：主要作用在于创建对象时为对象的成员属性赋值，**构造函数由编译器自动调用，无须手动调用**。
 * 析构函数：主要作用在于对象**销毁前**系统自动调用，执行一些清理工作。
 
 
@@ -1241,8 +1241,8 @@ c++利用了**构造函数**和**析构函数**解决上述问题，这两个函
 
 1. 析构函数，没有返回值也不写void
 2. 函数名称与类名相同,在名称前加上符号  ~
-3. 析构函数不可以有参数，因此不可以发生重载
-4. 程序在对象销毁前会自动调用析构，无须手动调用,而且只会调用一次
+3. <u>析构函数不可以有参数，因此不可以发生重载</u>
+4. 程序在对象销毁前会自动调用析构，<u>无须手动调用</u>,而且只会调用一次
 
 
 
@@ -1327,8 +1327,8 @@ public:
 		cout << "有参构造函数!" << endl;
 	}
 	//拷贝构造函数
-	Person(const Person& p) {
-		age = p.age;
+	Person(const Person& p) {		//仅仅是拷贝，不能修改所以要const  
+		age = p.age;//将p的属性拷贝到当前对象身上
 		cout << "拷贝构造函数!" << endl;
 	}
 	//析构函数
@@ -1426,7 +1426,7 @@ public:
 void test01() {
 
 	Person man(100); //p对象已经创建完毕
-	Person newman(man); //调用拷贝构造函数
+	Person newman(man); //可以调用拷贝构造函数了，因为把man放到newman中了
 	Person newman2 = man; //拷贝构造
 
 	//Person newman3;
@@ -1568,11 +1568,11 @@ int main() {
 
 
 
-浅拷贝：简单的赋值拷贝操作
+浅拷贝：（类似编译器提供的）简单的赋值拷贝操作，**会重复释放；**
 
 
 
-深拷贝：在堆区重新申请空间，进行拷贝操作
+**深拷贝：在堆区重新申请空间，进行拷贝操作**
 
 
 
@@ -1591,24 +1591,26 @@ public:
 		cout << "有参构造函数!" << endl;
 
 		m_age = age;
-		m_height = new int(height);
+		m_height = new int(height);  //将数据new在堆区，所以需要用 指针 接收
 		
 	}
-	//拷贝构造函数  
+	//拷贝构造函数     自己实现的，不用编译器的
 	Person(const Person& p) {
 		cout << "拷贝构造函数!" << endl;
-		//如果不利用深拷贝在堆区创建新内存，会导致浅拷贝带来的重复释放堆区问题
+		//如果不利用深拷贝在堆区创建新内存，会导致浅拷贝带来的重复释放堆区问题        ！！！堆中的数据由程序员手动开辟和释放！！！
 		m_age = p.m_age;
-		m_height = new int(*p.m_height);
+        //m_height = p.m_height;编译器进行的是这个
+		m_height = new int(*p.m_height);  //深拷贝  重新new一个，避免重复释放
 		
 	}
 
 	//析构函数
 	~Person() {
 		cout << "析构函数!" << endl;
-		if (m_height != NULL)
+		if (m_height != NULL)			//堆区有内存则需要手动释放
 		{
 			delete m_height;
+            m_height = NULL;//防止野指针出现
 		}
 	}
 public:
@@ -1622,7 +1624,7 @@ void test01()
 
 	Person p2(p1);
 
-	cout << "p1的年龄： " << p1.m_age << " 身高： " << *p1.m_height << endl;
+	cout << "p1的年龄： " << p1.m_age << " 身高： " << *p1.m_height << endl;//*解引用输出
 
 	cout << "p2的年龄： " << p2.m_age << " 身高： " << *p2.m_height << endl;
 }
@@ -1674,9 +1676,10 @@ public:
 	//	m_C = c;
 	//}
 
-	//初始化列表方式初始化
+	//！！！！初始化列表方式初始化！！！！
 	Person(int a, int b, int c) :m_A(a), m_B(b), m_C(c) {}
-	void PrintPerson() {
+	
+    void PrintPerson() {
 		cout << "mA:" << m_A << endl;
 		cout << "mB:" << m_B << endl;
 		cout << "mC:" << m_C << endl;
@@ -1717,7 +1720,7 @@ C++类中的成员可以是另一个类的对象，我们称该成员为 对象�
 class A {}
 class B
 {
-    A a；
+    A a;//a为对象成员
 }
 ```
 
@@ -1740,7 +1743,7 @@ public:
 	Phone(string name)
 	{
 		m_PhoneName = name;
-		cout << "Phone构造" << endl;
+		cout << "Phone有参构造" << endl;
 	}
 
 	~Phone()
@@ -1758,8 +1761,10 @@ class Person
 public:
 
 	//初始化列表可以告诉编译器调用哪一个构造函数
-	Person(string name, string pName) :m_Name(name), m_Phone(pName)
+	Person(string name, string pName) :m_Name(name), m_Phone(pName)//相当于Phone m_Phone = pNmae;而正好pName是String类型和上面Phone类参数类型一致，所以可以初始化
 	{
+        //m_Name = name;上面相当于这两行
+        //m_Phone = phone;
 		cout << "Person构造" << endl;
 	}
 
@@ -1774,7 +1779,7 @@ public:
 	}
 
 	string m_Name;
-	Phone m_Phone;
+	Phone m_Phone;//类型是对象
 
 };
 void test01()
@@ -1848,7 +1853,7 @@ public:
 private:
 	static int m_B; //静态成员变量也是有访问权限的
 };
-int Person::m_A = 10;
+int Person::m_A = 10;//说明是Person类中的m_A  ::是作用域
 int Person::m_B = 10;
 
 void test01()
@@ -1900,10 +1905,10 @@ public:
 	{
 		cout << "func调用" << endl;
 		m_A = 100;
-		//m_B = 100; //错误，不可以访问非静态成员变量
+		//m_B = 100; //错误，不可以访问非静态成员变量   无法区分是那个对象的m_B属性
 	}
 
-	static int m_A; //静态成员变量
+	static int m_A; //静态成员变量   类内声明
 	int m_B; // 
 private:
 
@@ -1913,7 +1918,7 @@ private:
 		cout << "func2调用" << endl;
 	}
 };
-int Person::m_A = 10;
+int Person::m_A = 10;//类外初始化
 
 
 void test01()
@@ -2034,10 +2039,11 @@ public:
 		this->age = age;
 	}
 
-	Person& PersonAddPerson(Person p)
+	Person& PersonAddPerson(Person p)//因为返回的是空，不是p2则不能继续使用该方法，因此要返回p2对象本身	
 	{
 		this->age += p.age;
-		//返回对象本身
+		//解引用返回对象本身   this原本指向p2的指针
+        //因为返回的是个对象所以要用Person   加&引用是为了返回本体
 		return *this;
 	}
 
@@ -2050,7 +2056,7 @@ void test01()
 	cout << "p1.age = " << p1.age << endl;
 
 	Person p2(10);
-	p2.PersonAddPerson(p1).PersonAddPerson(p1).PersonAddPerson(p1);
+	p2.PersonAddPerson(p1).PersonAddPerson(p1).PersonAddPerson(p1);//多次运行此函数
 	cout << "p2.age = " << p2.age << endl;
 }
 
@@ -2099,7 +2105,7 @@ public:
 		if (this == NULL) {
 			return;
 		}
-		cout << mAge << endl;
+		cout << mAge << endl;//默认为this->mAge,但下面的this为空指针，所以不能访问
 	}
 
 public:
@@ -2137,7 +2143,7 @@ int main() {
 
 **常函数：**
 
-* 成员函数后加const后我们称为这个函数为**常函数**
+* 成员函数**后**加const后我们称为这个函数为**常函数**
 * 常函数内不可以修改成员属性
 * 成员属性声明时加关键字mutable后，在常函数中依然可以修改
 
@@ -2169,14 +2175,14 @@ public:
 	void ShowPerson() const {
 		//const Type* const pointer;
 		//this = NULL; //不能修改指针的指向 Person* const this;
-		//this->mA = 100; //但是this指针指向的对象的数据是可以修改的
+		//this->mA = 100; //原本this指针指向的对象的数据是可以修改的
 
 		//const修饰成员函数，表示指针指向的内存空间的数据不能修改，除了mutable修饰的变量
 		this->m_B = 100;
 	}
 
 	void MyFunc() const {
-		//mA = 10000;
+		//mA = 10000;  常函数不可修改
 	}
 
 public:
@@ -2190,11 +2196,10 @@ void test01() {
 
 	const Person person; //常量对象  
 	cout << person.m_A << endl;
-	//person.mA = 100; //常对象不能修改成员变量的值,但是可以访问
-	person.m_B = 100; //但是常对象可以修改mutable修饰成员变量
+	//person.mA = 100; //错，常对象不能修改成员变量的值,但是可以访问
+	person.m_B = 100; //对，但是常对象可以修改mutable修饰成员变量
+    person.ShowPerson();//可调用常函数，不可调用普通函数
 
-	//常对象访问成员函数
-	person.MyFunc(); //常对象不能调用const的函数
 
 }
 
@@ -2298,7 +2303,7 @@ int main(){
 
 
 
-#### 4.4.2 类做友元
+#### 4.4.2<font color="red"> 类做友元</font>
 
 
 
@@ -2899,7 +2904,7 @@ int main() {
 
 
 
-#### 4.5.6 函数调用运算符重载
+#### 4.5.6 <font color="red">函数调用运算符重载</font>
 
 
 
@@ -3321,7 +3326,7 @@ public:
 		//m_C; //不可访问
 	}
 };
-class GrandSon3 :public Son3
+class GrandSon3 :public Son3//Son3是私有继承
 {
 public:
 	void func()
@@ -3826,7 +3831,7 @@ int main() {
 
 2. 草泥马继承自动物的数据继承了两份，其实我们应该清楚，这份数据我们只需要一份就可以。
 
-
+**使用虚继承后会将数据只存最后的一份**
 
 **示例：**
 
@@ -3894,7 +3899,11 @@ int main() {
 
 #### 4.7.1 多态的基本概念
 
-
+多态满足条件： 
+	1、有继承关系
+	2、子类重写父类中的虚函数
+多态使用：
+	父类指针或引用指向子类对象
 
 **多态是C++面向对象三大特性之一**
 
@@ -4168,9 +4177,9 @@ int main() {
 
 在多态中，通常父类中虚函数的实现是毫无意义的，主要都是调用子类重写的内容
 
+**纯虚函数：是在基类中声明的虚函数，它在基类中没有定义，但要求任何派生类都要定义自己的实现方法。在基类中实现纯虚函数的方法是在函数原型后加"=0"**
 
-
-因此可以将虚函数改为**纯虚函数**
+因此可以将虚函数改为**纯虚函数**（类似Java中的抽象类abstract）
 
 
 
@@ -4207,6 +4216,7 @@ public:
 class Son :public Base
 {
 public:
+    //重写父类纯虚函数
 	virtual void func() 
 	{
 		cout << "func调用" << endl;
@@ -4216,7 +4226,7 @@ public:
 void test01()
 {
 	Base * base = NULL;
-	//base = new Base; // 错误，抽象类无法实例化对象
+	//base = new Base; // 错误，父类是抽象类无法实例化对象
 	base = new Son;
 	base->func();
 	delete base;//记得销毁
@@ -4269,7 +4279,7 @@ int main() {
 class AbstractDrinking {
 public:
 	//烧水
-	virtual void Boil() = 0;
+	virtual void Boil() = 0;		//纯虚函数
 	//冲泡
 	virtual void Brew() = 0;
 	//倒入杯中
@@ -4376,13 +4386,13 @@ int main() {
 
 
 
-解决方式：将父类中的析构函数改为**虚析构**或者**纯虚析构**
+解决方式：将父类中的析构函数改为**虚析构**或者**纯虚析构**，让子类自己来析构
 
 
 
 虚析构和纯虚析构共性：
 
-* 可以解决父类指针释放子类对象
+* **可以解决父类指针释放子类对象**
 * 都需要有具体的函数实现
 
 虚析构和纯虚析构区别：
@@ -4712,9 +4722,9 @@ void test01()
 
 程序运行时产生的数据都属于临时数据，程序一旦运行结束都会被释放
 
-通过**文件可以将数据持久化**
+通过<font color = "greenyellow">**文件可以将数据持久化**</font>
 
-C++中对文件操作需要包含头文件 ==&lt; fstream &gt;==
+C++中对文件操作需要包含头文件 `fstream` 
 
 
 
@@ -4737,7 +4747,7 @@ C++中对文件操作需要包含头文件 ==&lt; fstream &gt;==
 
 #### 5.1.1写文件
 
-   写文件步骤如下：
+   <font color = "greenyellow">写文件步骤如下：</font>
 
 1. 包含头文件   
 
@@ -4759,7 +4769,7 @@ C++中对文件操作需要包含头文件 ==&lt; fstream &gt;==
 
    ofs.close();
 
-   ​
+   
 
 文件打开方式：
 
@@ -4839,7 +4849,7 @@ int main() {
 
 
 
-读文件步骤如下：
+<font color = "greenyellow">读文件步骤如下：</font>
 
 1. 包含头文件   
 
@@ -4879,9 +4889,9 @@ void test01()
 		return;
 	}
 
-	//第一种方式
+	//第一种方式			！！！！
 	//char buf[1024] = { 0 };
-	//while (ifs >> buf)
+	//while (ifs >> buf)  当ifs文件流写入到buf不为空则在控制台打印
 	//{
 	//	cout << buf << endl;
 	//}
@@ -4945,7 +4955,7 @@ int main() {
 
 以二进制的方式对文件进行读写操作
 
-打开方式要指定为 ==ios::binary==
+打开方式要指定为 `ios::binary`
 
 
 
