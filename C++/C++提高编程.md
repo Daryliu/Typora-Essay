@@ -2133,7 +2133,7 @@ void test01()
 	}
 	
 
-	pos = str1.rfind("de");
+	pos = str1.rfind("de");//查找de最后一次出现的索引
 
 	cout << "pos = " << pos << endl;
 
@@ -2435,7 +2435,7 @@ int main() {
 
 **动态扩展：**
 
-* 并不是在原空间之后续接新空间，而是找更大的内存空间，然后将原数据拷贝新空间，释放原空间
+* **并不是在原空间之后续接新空间，而是找更大的内存空间，然后将原数据拷贝新空间，释放原空间**
 
 
 
@@ -2549,7 +2549,7 @@ int main() {
 ```C++
 #include <vector>
 
-void printVector(vector<int>& v) {
+void printVector(vector<int>& v) {//引用
 
 	for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
 		cout << *it << " ";
@@ -2566,7 +2566,7 @@ void test01()
 		v1.push_back(i);
 	}
 	printVector(v1);
-
+    //printVector(&v1);取地址
 	vector<int>v2;
 	v2 = v1;
 	printVector(v2);
@@ -2655,7 +2655,7 @@ void test01()
 	else
 	{
 		cout << "v1不为空" << endl;
-		cout << "v1的容量 = " << v1.capacity() << endl;
+		cout << "v1的容量 = " << v1.capacity() << endl;//可能是规定给的容量是1.3倍
 		cout << "v1的大小 = " << v1.size() << endl;
 	}
 
@@ -5443,7 +5443,7 @@ map和multimap**区别**：
 
 * `map& operator=(const map &mp);`    //重载等号操作符
 
-
+map可以当做一个**容器**（装载具有一定格式的数据）；pair可以理解为**元素**（放入到容器的的一个个个体），发现pair并没有单独行动的典型用法，正常都是配合map来使用（即把pair这个元素插入到map这个容器里面）
 
 **示例：**
 
@@ -5454,7 +5454,7 @@ void printMap(map<int,int>&m)
 {
 	for (map<int, int>::iterator it = m.begin(); it != m.end(); it++)
 	{
-		cout << "key = " << it->first << " value = " << it->second << endl;
+		cout << "key = " << it->first << " value = " << it->second << endl;//first和second分别表示为键和值
 	}
 	cout << endl;
 }
