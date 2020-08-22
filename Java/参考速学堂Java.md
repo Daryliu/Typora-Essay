@@ -603,6 +603,8 @@ System.out.println(daytime);//打印输出137  当前年中的天数
 
 ##### File类
 
+​	<font color = "blue">不能读写文件内容</font>
+
 ​	![表8-3 File类访问属性的方法列表.png](https://www.sxt.cn/360shop/Public/admin/UEditor/20170524/1495611382530451.png)
 
 ![表8-4 File类创建文件或目录的方法列表.png](https://www.sxt.cn/360shop/Public/admin/UEditor/20170524/1495611400819053.png)
@@ -625,15 +627,25 @@ System.out.println(daytime);//打印输出137  当前年中的天数
 
 
 
-##### Collection接口
+### Collection类
 
 ​	Collection接口的两个<u>子接口</u>是List、Set接口。
 
 ​	![表9-1 Collection接口中定义的方法.png](https://www.sxt.cn/360shop/Public/admin/UEditor/20170524/1495614959696503.png)
 
+   1.void sort(List) //对List容器内的元素排序，排序的规则是按照升序进行排序。
+
+2. void shuffle(List) //对List容器内的元素进行随机排列。
+
+3. void reverse(List) //对List容器内的元素进行逆续排列 。
+
+4. void fill(List, Object) //用一个特定的对象重写整个List容器。
+
+5. int binarySearch(List, Object)//对于顺序的List容器，采用折半查找的方法查找特定对象。
 
 
-#### List
+
+#### List列表
 
 ​	**List接口常用的实现类有3个：ArrayList、LinkedList和Vector。**
 
@@ -685,7 +697,7 @@ System.out.println(daytime);//打印输出137  当前年中的天数
 
 
 
-##### Map接口
+#### Map映射
 
 ​	Map就是用来存储“键(key)-值(value) 对”的。 Map类中存储的“键值对”通过键来标识，所以“键对象”<u>**不能重复**</u>。
 
@@ -699,12 +711,377 @@ System.out.println(daytime);//打印输出137  当前年中的天数
 
 ​	(key,value)键值对
 
-​	无序；允许key或value为null；线程不安全，效率高
+​	无序；允许key或value为null；线程不安全，效率高；key不可重复，value可重复并替换
 
 ​	由于底层采用了哈希表存储数据，我们要求键不能重复，<u>如果发生重复，新的键值对会替换旧的键值对。</u>
+
+​	<font color= "blue">**内部存储原理**</font>：当添加一个元素(key-value)时，首先计算key的hash值，以此确定插入数组中的位置，但是可能存在同一hash值的元素已经被放在数组同一位置了，这时就添加到同一hash值的元素的后面，他们在数组的同一位置，就形成了链表，同一个链表上的Hash值是相同的，所以说数组存放的是链表。 JDK8中，当链表长度大于8时，链表就转换为红黑树，这样又大大提高了查找的效率。
+
+​	<font color= "blue">扩容问题</font>：HashMap的位桶数组，初始大小为16。实际使用时，显然大小是可变的。如果位桶数组中的元素达到(0.75*数组 length)， 就重新调整数组大小变为原来2倍大小。
 
 
 
 ##### HashTable
 
 ​	线程安全，效率低；**不允许key或value为空**（其余与HashMap一致）
+
+
+
+#### Set集
+
+​	特点：无序、不可重复、只能放入一个null元素
+
+
+
+#### 迭代器
+
+​	<u>Set\List迭代</u>
+
+```java
+List<String> list = new ArrayList<String>();//List迭代----set迭代类似
+Iterator<String> list = new Iterator();
+```
+
+​	<u>Map迭代</u>
+
+```java
+//Map迭代需要用set集合来	获取key值的集合
+Map<String, String> map = new HashMap<String, String>();
+
+Set<String> ss = map.keySet();//set集合来获取key值的集合
+for (Iterator<String> iterator = ss.iterator(); iterator.hasNext();) {
+            String key = iterator.next();
+            System.out.println(key + "--" + map.get(key));
+        }
+
+
+//方法二		使用entrySet			同时拿到key和value
+Set<Entry<Integer, Man>>  ss = maps.entrySet();
+for (Iterator iterator = ss.iterator(); iterator.hasNext();) {
+    Entry e = (Entry) iterator.next(); 
+    System.out.println(e.getKey()+"--"+e.getValue());
+```
+
+
+
+### I/O技术
+
+​	**流**：是一连串连续动态的数据集合。
+
+​	对于**输入流而言**，<font color = "blue">数据源就像水箱，流(stream)就像水管中流动着的水流</font>，程序就是我们最终的用户。我们通过流(A Stream)将数据源(Source)中的数据(information)输送到程序(Program)中。
+
+   对于**输出流而言**，目标数据源就是目的地(dest)，我们通过流(A Stream)将程序(Program)中的数据(information)输送到目的数据源(dest)中。
+
+```java 
+		FileInputStream fis = null;
+        try {
+            fis = new FileInputStream("d:/a.txt"); // 内容是：abc
+            StringBuilder sb = new StringBuilder();
+            int temp = 0;
+            //当temp等于-1时，表示已经到了文件结尾，停止读取
+            while ((temp = fis.read()) != -1) {
+                sb.append((char) temp);
+            }
+            System.out.println(sb);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                //这种写法，保证了即使遇到异常情况，也会关闭流对象。
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+```
+
+
+
+1. **节点流**：可以直接从数据源或目的地读写数据，如FileInputStream、FileReader、DataInputStream等。
+
+2. **处理流**：不直接连接到数据源或目的地，是”<u>处理流的流”。通过对其他流的处理提高程序的性能</u>，如BufferedInputStream、BufferedReader等。处理流也叫包装流。
+
+
+
+#### 文件字节流
+
+##### FileInputStream
+
+​	通过字节的方式**读取文件**，适合读取所有类型的文件(图像、视频、文本文件等)。Java也提供了`FileReader`专门<u>读取文本文件</u>。
+
+##### FileOutputStream 
+
+​	通过字节的方式写数据到文件中，适合所有类型的文件。Java也提供了FileWriter专门写入文本文件。
+
+```java
+		FileOutputStream fos = null;
+        String string = "北京尚学堂欢迎您！";
+        try {
+            // true表示内容会追加到文件末尾；false表示重写整个文件内容。
+            fos = new FileOutputStream("d:/a.txt", true);
+            //getBytes该方法是直接将一个字节数组写入文件中; 而write(int n)是写入一个字节
+            fos.write(string.getBytes());
+        }
+```
+
+[^附注]: 1. 为了减少对硬盘的读写次数，提高效率，通常设置缓存数组。相应地，读取时使用的方法为：read(byte[] b);写入时的方法为：write(byte[ ] b, int off, int length)。---------不加缓存数组，就会一个字节一个字节的读，太慢！！！
+
+
+
+#### 文件字符流
+
+​	<font color = "blue">处理文本文件(Unicode字符)</font>，一般可以使用文件字符流，它以<u>字符为单位</u>进行操作。
+
+##### FileReader && FileWriter
+
+```Java
+		FileReader fr = null;
+        FileWriter fw = null;
+        int len = 0;
+        try {
+            fr = new FileReader("d:/a.txt");
+            fw = new FileWriter("d:/d.txt");
+            //为了提高效率，创建缓冲用的字符数组
+            char[] buffer = new char[1024];
+            //边读边写----------每次读的时候都读取1024字符
+            while ((len = fr.read(buffer)) != -1) {
+                fw.write(buffer, 0, len);
+            }
+        }
+```
+
+
+
+#### 缓冲字节流
+
+​	当对文件或者其他数据源进行<u>频繁的读写</u>操作时，效率比较低，这时如果使用<u>缓冲流就能够更高效的读写信息</u>。因为缓冲流是先将数据缓存起来，然后当**缓存区存满后或者手动刷新时再一次性的读取到程序或写入目的地**。
+
+##### BufferedInputStream && BufferedOutputStream
+
+```java
+		FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        FileOutputStream fos = null;
+        BufferedOutputStream bos = null;
+        int temp = 0;
+        try {
+            fis = new FileInputStream(src);
+            fos = new FileOutputStream(dec);
+            //使用缓冲字节流包装文件字节流，增加缓冲功能，提高效率
+            //缓存区的大小（缓存数组的长度）默认是8192，也可以自己指定大小
+            bis = new BufferedInputStream(fis);
+            bos = new BufferedOutputStream(fos);
+            while ((temp = bis.read()) != -1) {
+                bos.write(temp);
+            }
+        }//在关闭流时，应该先关闭最外层的包装流，即“后开的先关闭”。
+```
+
+
+
+#### 缓冲字符流
+
+##### 	BufferedReader && BufferedWriter
+
+​	处理文本时，我们一般可以使用缓冲字符流加快速度！
+
+```java
+// 注：处理文本文件时，实际开发中可以用如下写法，简单高效！！
+        FileReader fr = null;
+        FileWriter fw = null;
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        String tempString = "";
+        try {
+            fr = new FileReader("d:/a.txt");
+            fw = new FileWriter("d:/d.txt");
+            //使用缓冲字符流进行包装
+            br = new BufferedReader(fr);
+            bw = new BufferedWriter(fw);
+            //BufferedReader提供了更方便的readLine()方法，直接按行读取文本
+            //br.readLine()方法的返回值是一个字符串对象，即文本中的一行内容，所以判断的时候判断为null
+            while ((tempString = br.readLine()) != null) {
+                //将读取的一行字符串写入文件中
+                bw.write(tempString);
+                //下次写入之前先newLine()换行，否则会在上一行后边继续追加，而不是另起一行
+                bw.newLine();
+            }
+        }
+```
+
+
+
+#### 字节数组流
+
+##### ByteArrayInputStream && ByteArrayOutputStream
+
+​	<font color = "blue">用在需要流和数组之间转化的情况。</font>
+
+​	<u>FileInputStream是把文件当做数据源。ByteArrayInputStream则是<font color = "blue">把内存中的”某个字节数组对象”当做数据源</font>。</u>
+
+```java
+public static void main(String[] args) {
+        //将字符串转变成字节数组，然后作为数据源进行操作
+        byte[] b = "abcdefg".getBytes();
+        test(b);
+    }
+    public static void test(byte[] b) {
+        ByteArrayInputStream bais = null;
+        StringBuilder sb = new StringBuilder();
+        int temp = 0;
+        //用于保存读取的字节数量
+        int num = 0; 
+        try {
+            //该构造方法的参数是一个字节数组，这个字节数组就是数据源
+            bais = new ByteArrayInputStream(b);
+            while ((temp = bais.read()) != -1) {
+                sb.append((char) temp);
+                num++;
+            }
+            System.out.println(sb);
+            System.out.println("读取的字节数：" + num);
+        } finally {
+            try {
+                if (bais != null) {
+                    bais.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+```
+
+
+
+#### 数据流
+
+​	将<font color = "blue">“基本数据类型与字符串类型int、double、String等”作为数据源</font>，从而允许程序以与机器无关的方式从底层输入输出流中操作Java基本数据类型与字符串类型。
+
+##### DataInputStream && DataOutputStream
+
+​	是处理流，可以对其他节点流或处理流进行包装，增加一些更灵活、更高效的功能。
+
+```java
+		DataOutputStream dos = null;
+        DataInputStream dis = null;
+        FileOutputStream fos = null;
+        FileInputStream  fis = null;
+        try {
+            fos = new FileOutputStream("D:/data.txt");
+            fis = new FileInputStream("D:/data.txt");
+            //使用数据流对缓冲流进行包装，新增缓冲功能
+            dos = new DataOutputStream(new BufferedOutputStream(fos));
+            dis = new DataInputStream(new BufferedInputStream(fis));
+            //将如下数据写入到文件中
+            dos.writeChar('a');
+            dos.writeInt(10);
+            dos.writeDouble(Math.random());
+            dos.writeBoolean(true);
+            dos.writeUTF("北京尚学堂");
+            //手动刷新缓冲区：将流中数据写入到文件中
+            dos.flush();
+            //直接读取数据：读取的顺序要与写入的顺序一致，否则不能正确读取数据。
+            System.out.println("char: " + dis.readChar());
+            System.out.println("int: " + dis.readInt());
+            System.out.println("double: " + dis.readDouble());
+            System.out.println("boolean: " + dis.readBoolean());
+            System.out.println("String: " + dis.readUTF());
+        } 
+```
+
+
+
+#### 对象流
+
+​	对某个对象进行读写操作。以“对象”为数据源，但是<u>必须将传输的对象进行序列化与反序列化操作。</u>
+
+​	对象流不仅可以读写对象，还可以读写基本数据类型。
+
+##### ObjectInputStream && ObjectOutputStream
+
+```java
+// 创建Object输出流，并包装缓冲流，增加缓冲功能
+----------//当准备将一个对象写入文件的时候，首先用OutputStream的子类创建一个输出流。！！！！！！！！<下面第一行>
+        OutputStream os = null;			//首先需要创建输出流
+        BufferedOutputStream bos = null;		//包装缓冲流
+        ObjectOutputStream oos = null;			//对象流
+        try {
+            os = new FileOutputStream(new File("d:/bjsxt.txt"));
+            bos = new BufferedOutputStream(os);
+            oos = new ObjectOutputStream(bos);
+            // 使用Object输出流
+            //对象流也可以对基本数据类型进行读写操作
+            oos.writeInt(12);
+            oos.writeDouble(3.14);
+            oos.writeChar('A');
+            oos.writeBoolean(true);
+            oos.writeUTF("北京尚学堂");
+            //对象流能够对对象数据类型进行读写操作
+            //Date是系统提供的类，已经实现了序列化接口
+            //如果是自定义类，则需要自己实现序列化接口
+            oos.writeObject(new Date());
+        }catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            //关闭输出流
+            if(oos != null){
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(bos != null){
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(os != null){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+```
+
+
+
+#### 转换流
+
+##### InputStreamReader && OutputStreamWriter
+
+​	用来实现将**字节流转化成字符流**。可以在一定程度上避免乱码。
+
+```JAVA
+// 创建字符输入和输出流:使用转换流将字节流转换成字符流
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(System.in));
+            bw = new BufferedWriter(new OutputStreamWriter(System.out));
+            // 使用字符输入和输出流
+            String str = br.readLine();
+            // 一直读取，直到用户输入了exit为止
+            while (!"exit".equals(str)) {
+                // 写到控制台
+                bw.write(str);
+                bw.newLine();// 写一行后换行
+                bw.flush();// 手动刷新
+                // 再读一行
+                str = br.readLine();
+            }
+        }
+```
+
+
+
+#### 序列化和反序列化--对象流
+
+​	当两个进程远程通信时，**<u>发送方</u>需要把这个Java对象转换为字节序列<font color = "blue">（序列化）</font>，才能在网络上传送;<u>接收方</u>则需要把字节序列再恢复为Java对象才能正常读取<font color = "blue">（反序列化）</font>。**
