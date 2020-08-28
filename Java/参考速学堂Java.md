@@ -1085,3 +1085,166 @@ public static void main(String[] args) {
 #### 序列化和反序列化--对象流
 
 ​	当两个进程远程通信时，**<u>发送方</u>需要把这个Java对象转换为字节序列<font color = "blue">（序列化）</font>，才能在网络上传送;<u>接收方</u>则需要把字节序列再恢复为Java对象才能正常读取<font color = "blue">（反序列化）</font>。**
+
+​	序列化：`ObjectOutputStream.writeObject()`
+
+​	反序列化：`ObjectInputStream.readObject()`
+
+​	只有实现了`Serializable`接口的类的对象才能被序列化。 `Serializable`接口是一个空接口，只起到标记作用。（序列化的类需要实现 Serializable 接口）
+
+```java
+//Person类实现Serializable接口后，Person对象才能被序列化
+class Person implements Serializable {
+    // 添加序列化ID，它决定着是否能够成功反序列化！
+    private static final long serialVersionUID = 1L;
+    int age;
+    boolean isMan;
+    String name;
+ 
+    public Person(int age, boolean isMan, String name) {
+        super();
+        this.age = age;
+        this.isMan = isMan;
+        this.name = name;
+    }
+ 
+    @Override
+    public String toString() {
+        return "Person [age=" + age + ", isMan=" + isMan + ", name=" + name + "]";
+    }
+}
+ 
+public class TestSerializable {
+    public static void main(String[] args) {
+        FileOutputStream fos = null;
+        ObjectOutputStream oos = null;
+        ObjectInputStream ois = null;
+        FileInputStream fis = null;
+        try {
+            // 通过ObjectOutputStream将Person对象的数据写入到文件中，即序列化。
+            Person person = new Person(18, true, "高淇");
+            // 序列化
+            fos = new FileOutputStream("d:/c.txt");
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(person);
+            oos.flush();
+            // 反序列化
+            fis = new FileInputStream("d:/c.txt");
+            // 通过ObjectInputStream将文件中二进制数据反序列化成Person对象：
+            ois = new ObjectInputStream(fis);
+            Person p = (Person) ois.readObject();
+            System.out.println(p);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+
+
+#### 多线程
+
+​	**进程：**进程是程序的一次动态执行过程， 占用特定的地址空间；进程退出后则回收内存空间；进程间相互独立，只有通信时才有联系。
+
+​	**线程：**1、多个线程共享相同的进程内存单元/内存地址空间，可以访问相同的变量和对象，而且它们从同一堆中分配对象并进行通信、数据交换和同步操作；
+
+​				2、由于线程间的通信是在同一地址空间上进行的，所以<u>不需要额外的通信机制</u>，这就使得通信更简便而且信息传递的速度也更快。
+
+​	**在java中所以的线程都是同时启动的，至于什么时候，哪个先执行，完全看谁先得到CPU的资源。**
+
+​	**在java中，每次程序运行至少启动2个线程。一个是main线程，一个是垃圾收集线程。**
+
+​	线程生命周期如下：
+
+![图11-4 线程生命周期图.png](https://www.sxt.cn/360shop/Public/admin/UEditor/20170526/1495787690411518.png)
+
+
+
+##### 通过Thread类实现多线程
+
+​	不适合资源共享
+
+```java
+public class TestThread extends Thread {//自定义类继承Thread类
+    //run()方法里是线程体
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println(this.getName() + ":" + i);//getName()方法是返回线程名称
+        }
+    }
+ 
+    public static void main(String[] args) {
+        TestThread thread1 = new TestThread();//创建线程对象
+        thread1.start();//通过调用Thread类的start()方法来启动一个线程。
+        
+        TestThread thread2 = new TestThread();
+        thread2.start();
+    }
+}
+```
+
+##### 通过Runnable接口实现多线程
+
+​	1、很容易的实现资源共享；
+
+​	2、可以避免java中的单继承的限制（因为继承Thread类时不能多继承）；
+
+​	3、线程池只能放入实现Runable或callable类线程，不能直接放入继承Thread的类
+
+```Java
+public class TestThread2 implements Runnable {//自定义类实现Runnable接口；
+    //run()方法里是线程体；
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Thread.currentThread().getName() + ":" + i);
+        }
+    }
+    public static void main(String[] args) {
+        //创建线程对象，把实现了Runnable接口的对象作为参数传入；
+        Thread thread1 = new Thread(new TestThread2());
+        thread1.start();//启动线程；
+        Thread thread2 = new Thread(new TestThread2());
+        thread2.start();
+    }
+}//！！！！！！！--------------更加通用--------------！！！！！！！！！
+```
+
+
+
+##### 并发和并行
+
+​	并发：物理上同时发生，指的是一个**<font color = "blue">时间内</font>同时运行多个程序(同一个时间段内都在做各自的任务)**；
+
+​	并行：逻辑上同时发生，指的是一个**<font color = "blue">时间点</font>同时运行多个程序**；
