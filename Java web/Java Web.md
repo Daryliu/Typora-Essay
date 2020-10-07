@@ -451,3 +451,136 @@ PrintWriter writer = resp.getWriter();//响应流  获取响应的输入流，�
 writer.print("Hello Servlet");
 ```
 
+
+
+#### 4.6 HttpServletRequest
+
+
+
+#### 4.7 HttpServletResponse
+
+web服务器接收到的客户端的http请求，针对这个请求，分别创建一个代表请求的HttpServletRequest对象，和一个代表响应的HttpServletResponse对象。
+
+- 如果要获取客户端”请求“过来的参数：找HttpServletRequest
+- 如果要给客户端”响应“一些信息：找HttpServletResponse
+
+响应中的方法分类：
+
+1. 负责向浏览器发送数据的方法
+
+   ```java
+   ServletOutputStream getOutputStream() throws IOException;  //写入平常的流
+   PrintWriter getWriter() throws IOException;  //写入中文
+   ```
+
+2. 负责向浏览器发送响应头的方法
+
+3. 负责向浏览器发送响应状态码
+
+常见应用：
+
+1. 向浏览器输出消息
+2. 下载文件/上传文件
+   1. 获取下载文件的路径
+   2. 下载的文件名
+   3. 设置让浏览器支持下载我们需要的东西
+   4. 获取下载文件的输入流
+   5. 创建缓冲区
+   6. 获取OutputStream对象
+   7. 将FileOutputStream流写入到buffer缓冲区
+   8. 使用OutputStream将缓冲区中的数据库输出到客户端
+
+```java
+@Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//         1. 获取下载文件的路径
+        String path = "E:\\MavenDaryl\\response\\target\\response\\WEB-INF\\classes\\1.png";
+                /*this.getServletContext().getRealPath("/1.png");*/
+        System.out.println(path);/*打印下载的文件路径*/
+//         2. 下载的文件名
+        String filename = path.substring(path.lastIndexOf("\\") + 1);/*截取/后面的名字，\\是为了转义，+1则只要后面的*/
+//         3. 设置让浏览器支持下载(Content-disposition)我们需要的东西,中文文件名需要URLEncoder转码
+        resp.setHeader("Content-disposition","attachment;filename"+ URLEncoder.encode(filename,"utf-8"));
+//         4. 获取下载文件的输入流
+        FileInputStream in = new FileInputStream(path);
+//         5. 创建缓冲区
+        int len = 0;
+        byte[] buffer = new byte[1024];
+//         6. 获取OutputStream对象
+        ServletOutputStream out = resp.getOutputStream();
+//         7. 将FileOutputStream流写入到buffer缓冲区;8. 使用OutputStream将缓冲区中的数据库输出到客户端
+        while ((len = in.read(buffer)) > 0) {
+            out.write(buffer,0,len);
+        }
+        in.close();
+        out.close();
+    }
+```
+
+3. 验证码功能
+
+需要用到Java的图片类，生成一个图片。
+
+```java
+@Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //如何让浏览器3秒自动刷新一次
+        resp.setHeader("refresh","3");
+        //在内存中创建图片
+        BufferedImage image = new BufferedImage(80,20,BufferedImage.TYPE_INT_RGB);
+        //得到图片
+        Graphics2D graphics = (Graphics2D) image.getGraphics();//相当于画笔
+        //设置图片的背景颜色
+        graphics.setColor(Color.white);//背景色
+        graphics.fillRect(0,0,80,20);//位置大小
+        //给图片写数据
+        graphics.setColor(Color.BLUE);//画笔颜色
+        graphics.setFont(new Font(null,Font.BOLD,20));
+        graphics.drawString(makeNum(),0,20);//把随机数画上去
+        //告诉浏览器，这个请求用图片的形式打开
+        resp.setContentType("image/jpeg");
+        //网站存在缓存，不让浏览器缓存
+        resp.setDateHeader("expires",-1);
+        resp.setHeader("Cache-Control","no-cache");
+        resp.setHeader("Pragma","no-cache");
+        //把图片写给浏览器
+        ImageIO.write(image,"jpg",resp.getOutputStream());
+    }
+
+    //生成随机数
+    private String makeNum() {
+        Random random = new Random();
+        String num = random.nextInt(9999999) + "";
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < 7-num.length(); i ++) {//保证随机数是7位，若不足7位则用0填充
+            sb.append(0);
+        }
+        num = sb.toString() + num;
+        return num;
+    }
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
