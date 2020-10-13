@@ -455,7 +455,28 @@ writer.print("Hello Servlet");
 
 #### 4.6 HttpServletRequest
 
+​		代表客户端的请求，用户通过http协议访问服务器，http请求中的所有信息会被封装到HttpServletRequest，通过这个HttpServletRequest方法获得客户端的所有信息。
 
+1. 获取前端传递的参数
+
+   - ```java
+     	//后台接收中文乱码问题
+     	req.setCharacterEncoding("utf-8");
+     	//结束的时候也设置
+     	resp.setCharacterEncoding("utf-8");
+     
+     	//req.getParameter()-----返回String
+     	String username = req.getParameter("username");
+         String password = req.getParameter("password");
+         //req.getParameterValues()-----返回String[]数组
+         String[] parameterValues = req.getParameterValues("hobbys");
+     ```
+
+2. 请求转发
+
+   - ```java
+     req.getRequestDispatcher("/hello").forward(req,resp);//转发的时候不需要写前面的路径（重定向的时候需要） "/"已经代表了当前的web应用
+     ```
 
 #### 4.7 HttpServletResponse
 
@@ -519,56 +540,158 @@ web服务器接收到的客户端的http请求，针对这个请求，分别创�
 
 3. 验证码功能
 
-需要用到Java的图片类，生成一个图片。
+   需要用到Java的图片类，生成一个图片。
 
-```java
-@Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //如何让浏览器3秒自动刷新一次
-        resp.setHeader("refresh","3");
-        //在内存中创建图片
-        BufferedImage image = new BufferedImage(80,20,BufferedImage.TYPE_INT_RGB);
-        //得到图片
-        Graphics2D graphics = (Graphics2D) image.getGraphics();//相当于画笔
-        //设置图片的背景颜色
-        graphics.setColor(Color.white);//背景色
-        graphics.fillRect(0,0,80,20);//位置大小
-        //给图片写数据
-        graphics.setColor(Color.BLUE);//画笔颜色
-        graphics.setFont(new Font(null,Font.BOLD,20));
-        graphics.drawString(makeNum(),0,20);//把随机数画上去
-        //告诉浏览器，这个请求用图片的形式打开
-        resp.setContentType("image/jpeg");
-        //网站存在缓存，不让浏览器缓存
-        resp.setDateHeader("expires",-1);
-        resp.setHeader("Cache-Control","no-cache");
-        resp.setHeader("Pragma","no-cache");
-        //把图片写给浏览器
-        ImageIO.write(image,"jpg",resp.getOutputStream());
-    }
+   ```java
+   @Override
+       protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+           //如何让浏览器3秒自动刷新一次
+           resp.setHeader("refresh","3");
+           //在内存中创建图片
+           BufferedImage image = new BufferedImage(80,20,BufferedImage.TYPE_INT_RGB);
+           //得到图片
+           Graphics2D graphics = (Graphics2D) image.getGraphics();//相当于画笔
+           //设置图片的背景颜色
+           graphics.setColor(Color.white);//背景色
+           graphics.fillRect(0,0,80,20);//位置大小
+           //给图片写数据
+           graphics.setColor(Color.BLUE);//画笔颜色
+           graphics.setFont(new Font(null,Font.BOLD,20));
+           graphics.drawString(makeNum(),0,20);//把随机数画上去
+           //告诉浏览器，这个请求用图片的形式打开
+           resp.setContentType("image/jpeg");
+           //网站存在缓存，不让浏览器缓存
+           resp.setDateHeader("expires",-1);
+           resp.setHeader("Cache-Control","no-cache");
+           resp.setHeader("Pragma","no-cache");
+           //把图片写给浏览器
+           ImageIO.write(image,"jpg",resp.getOutputStream());
+       }
+   
+       //生成随机数
+       private String makeNum() {
+           Random random = new Random();
+           String num = random.nextInt(9999999) + "";
+           StringBuffer sb = new StringBuffer();
+           for (int i = 0; i < 7-num.length(); i ++) {//保证随机数是7位，若不足7位则用0填充
+               sb.append(0);
+           }
+           num = sb.toString() + num;
+           return num;
+       }
+   ```
 
-    //生成随机数
-    private String makeNum() {
-        Random random = new Random();
-        String num = random.nextInt(9999999) + "";
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < 7-num.length(); i ++) {//保证随机数是7位，若不足7位则用0填充
-            sb.append(0);
-        }
-        num = sb.toString() + num;
-        return num;
-    }
-```
+4. 实现重定向
+
+   重定向：B收到客户端A请求后，通知A去访问资源C。
+
+   ```Java
+   resp.sendRedirect("/ImageServlet");
+   ```
+
+   面试题：
+
+   ​	重定向和转发的区别？
+
+   ​		“请求转发”的时候，url不会变化，307；
+
+   ​		“重定向”的时候，<u>url会发生变化</u>,302。
+
+   jsp页面：
+
+   ```jsp
+   <%--这里提交的路径需要找到项目的路径--%>
+   <%--pageContext.request.contextPath代表当前的项目--%>
+   <form action="${pageContext.request.contextPath}/login" method="get">
+       用户名：<input type="text" name="username"> <br>
+       密码：<input type="password" name="password"> <br>
+       <input type="submit">
+   ```
+
+   Java接收请求代码：
+
+   ```Java
+   		//处理请求
+           String username = req.getParameter("username");
+           String password = req.getParameter("password");
+           System.out.println(username+password);
+           resp.sendRedirect("/sucess");//重定向到sucess页面
+   ```
 
 
 
+#### 4.8  Cookie--Session
 
+##### 4.8.1会话
 
+​	会话：用户打开浏览器，点击很多超链接，访问多个web资源，关闭浏览器。整个过程叫会话。
 
+- 有状态会话：一个同学来过教室，下次再来，就会知道这个同学曾今来过。
 
+  “服务器”如何证明“客户端”来过？
 
+  1. 服务器给客户端一个信件（cookie），客户端下次访问服务端带上信件就可以。
+  2. 服务器登记你来过了，下次你来的时候我来匹配你（session）
 
+##### 4.8.2保存会话的两种技术
 
+###### cookie
+
+- 客户端技术(传信件)	（响应，请求）
+
+###### session
+
+- 服务器技术	利用这个技术可以保存用户的会话信息，将信息或数据放在session中。
+
+##### 4.8.3 Cookie
+
+1. 从请求中拿到cookie的信息
+
+2. 服务器相应给客户端
+
+   ```Java
+   		//cookie 服务器端从客户端获取
+           Cookie[] cookies = req.getCookies();//返回数组可能cookie有多个
+           //判断cookie是否存在
+           if (cookies != null) {
+               //如果存在cookie
+               out.print("上一次访问的时间是:");
+               for (int i = 0; i< cookies.length; i ++) {
+                   Cookie cookie = cookies[i];//获取每一个cookie
+                   String name = cookie.getName();//获取cookie的名字  key
+                   if (name.equals("cookieName")) {
+                       //对比遍历的cookie的名字和我们cookie的名字，比较值是否相符
+                       String value = cookie.getValue();   //获得cookie中的值  value
+                       long l = Long.parseLong(value);//将字符串换成时间戳
+                       Date date = new Date(l);//时间戳变成对象
+                       out.write(date.toLocaleString());
+                   }
+               }
+           }else {
+               out.print("第一次访问");
+           }
+   
+           //服务器给客户端响应/发送一个cookie
+           Cookie cookie = new Cookie("cookieName", System.currentTimeMillis()+"");//+""是为了转换为字符串
+           cookie.setMaxAge(24*60*60);		//设置cookie的有效期为1天
+           resp.addCookie(cookie);		//响应给客户端一个cookie
+   ```
+
+   若new的cookie的值是中文，那么<font color = "yellowgreen">编码</font>需要写为`Cookie cookie = new Cookie("cookieName", URLEncoder.encode("刘德昱","utf-8"));`，<font color = "yellowgreen">解码</font>时写为`URLDecoder.decode(cookie.getValue(),"utf-8")`
+
+   
+
+   **一个网站的cookie是否存在上限？**
+
+   - 一个cookie只能保存一个信息
+   - 一个web站点（服务器）可以给浏览器发送多个cookie（浏览器上限大约为300个cookie）
+   - 每个站点最多存放20个cookie
+   - cookie的大小有限制4kb
+
+   **删除cookie**
+
+   - 不设置有效期，关闭浏览器，自动失效
+   - 设置有效期时间为0	`cookie.setMaxAge(0);`
 
 
 
