@@ -461,12 +461,12 @@ writer.print("Hello Servlet");
 
    - ```java
      	//后台接收中文乱码问题
-     	req.setCharacterEncoding("utf-8");
-     	//结束的时候也设置
-     	resp.setCharacterEncoding("utf-8");
-     
-     	//req.getParameter()-----返回String
-     	String username = req.getParameter("username");
+       	req.setCharacterEncoding("utf-8");
+       	//结束的时候也设置
+       	resp.setCharacterEncoding("utf-8");
+       
+       	//req.getParameter()-----返回String
+       	String username = req.getParameter("username");
          String password = req.getParameter("password");
          //req.getParameterValues()-----返回String[]数组
          String[] parameterValues = req.getParameterValues("hobbys");
@@ -692,12 +692,81 @@ web服务器接收到的客户端的http请求，针对这个请求，分别创�
 
    - 不设置有效期，关闭浏览器，自动失效
    - 设置有效期时间为0	`cookie.setMaxAge(0);`
+   
+   
+
+##### 4.8.4 Session（重点）
+
+**什么是session？**
+
+- 服务器会给每个浏览器/用户创建一个session对象
+- 一个session独占一个浏览器，只要浏览器没关闭，这个session就存在
+- 用户登录后，整个网站他都可以访问------->保存用户信息
+
+
+
+使用场景：
+
+- 保存一个登录用户的信息；
+- 购物车信息；
+- 在整个项目网站中经常会使用的数据；
+
+```java
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding("utf-8");
+        resp.setContentType("text/html;charset=utf-8");
+        //得到session
+        HttpSession session = req.getSession();
+
+        //给session存数据
+        session.setAttribute("sessionName",new Person("刘德昱",24));
+        //获取session的ID
+        String id = session.getId();
+        //判断session是否为新创建的
+        if (session.isNew()) {
+            resp.getWriter().write("session创建成功，id为"+id);
+        }else {
+            resp.getWriter().write("session已经创建,ID为"+id);
+        }
+
+        /*在session创建的时候自动做了一些事情
+        * Cookie cookie = new Cookie("JSESSIONID",id);
+        * resp.addCookie(cookie);
+        * */
+    }
+===========================================================================================================
+		
+
+		//得到session
+        HttpSession session = req.getSession();
+        Person sessionName = (Person) session.getAttribute("sessionName");
+        System.out.println(sessionName.toString());//转为string类型打印
+
+        //手动注销session
+        req.removeAttribute("sessionName");
+        session.invalidate();
+
+
+============================================================================================================
+    	//自动注销会话session
+    	在web.xml中配置
+    	<!--设置session默认的失效时间-->
+  		<session-config>
+    		<!--一分钟过后session失效（以分钟为单位）-->
+    		<session-timeout>1</session-timeout>
+  		</session-config>
+```
 
 
 
 
 
+**session与cookie的区别？**
 
+1. Cookie是把用户的数据写给用户的浏览器，浏览器保存
+2. Session是把用户的数据写到用户独占的Session中，服务器保存（保存重要的信息，减少服务器资源的浪费）
+3. Session对象由服务器创建
 
 
 
