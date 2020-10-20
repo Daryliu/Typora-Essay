@@ -760,13 +760,527 @@ web服务器接收到的客户端的http请求，针对这个请求，分别创�
 
 
 
-
-
 **session与cookie的区别？**
 
 1. Cookie是把用户的数据写给用户的浏览器，浏览器保存
 2. Session是把用户的数据写到用户独占的Session中，服务器保存（保存重要的信息，减少服务器资源的浪费）
 3. Session对象由服务器创建
+
+
+
+#### 5、 JSP
+
+Java服务器端页面，与servlet一样，用于动态web技术。
+
+##### 5.1 JSP原理
+
+浏览器向服务器发送请求，无论访问什么资源，其实都在访问Servlet
+
+<font color = "yellowgreen">JSP页面最终也会转换为Java类；其本质上就是一个servlet。**以下是工作中jsp转换为的java文件中的代码：**</font>
+
+![image-20201014210222845](C:\Users\dn3\AppData\Roaming\Typora\typora-user-images\image-20201014210222845.png)
+
+```Java
+public void _jspInit() {//初始化
+  }
+
+  public void _jspDestroy() {//销毁
+  }
+
+  public void _jspService(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response)
+      throws java.io.IOException, javax.servlet.ServletException {
+      ----------------//判断请求-------------------------
+
+    if (!javax.servlet.DispatcherType.ERROR.equals(request.getDispatcherType())) {
+      final java.lang.String _jspx_method = request.getMethod();
+      if ("OPTIONS".equals(_jspx_method)) {
+        response.setHeader("Allow","GET, HEAD, POST, OPTIONS");
+        return;
+      }
+      if (!"GET".equals(_jspx_method) && !"POST".equals(_jspx_method) && !"HEAD".equals(_jspx_method)) {
+        response.setHeader("Allow","GET, HEAD, POST, OPTIONS");
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "JSP 只允许 GET、POST 或 HEAD。Jasper 还允许 OPTIONS");
+        return;
+      }
+    }
+	//---------------------------内置了一些对象--------------------------
+    final javax.servlet.jsp.PageContext pageContext;//页面上下文
+    javax.servlet.http.HttpSession session = null;//session
+    final javax.servlet.ServletContext application;//applicationContext
+    final javax.servlet.ServletConfig config;//config
+    javax.servlet.jsp.JspWriter out = null;//out
+    final java.lang.Object page = this;//page，当前
+      //------------------------输出页面前的代码-------------------------
+      try {
+      response.setContentType("text/html");
+      pageContext = _jspxFactory.getPageContext(this, request, response,
+      			null, true, 8192, true);
+      _jspx_page_context = pageContext;
+      application = pageContext.getServletContext();
+      config = pageContext.getServletConfig();
+      session = pageContext.getSession();
+      out = pageContext.getOut();
+      _jspx_out = out;
+	  //以上的这些对象可以在JSP页面中获得，用${xxx}来获取
+      
+      out.write("<html>\n");
+      out.write("<body>\n");
+      out.write("<h2>Hello World!</h2>\n");
+      out.write("</body>\n");
+      out.write("</html>\n");
+    } catch (java.lang.Throwable t) {
+      if (!(t instanceof javax.servlet.jsp.SkipPageException)){
+        out = _jspx_out;
+        if (out != null && out.getBufferSize() != 0)
+          try {
+            if (response.isCommitted()) {
+              out.flush();
+            } else {
+              out.clearBuffer();
+            }
+          } catch (java.io.IOException e) {}
+        if (_jspx_page_context != null) _jspx_page_context.handlePageException(t);
+        else throw new ServletException(t);
+      }
+    } finally {
+      _jspxFactory.releasePageContext(_jspx_page_context);
+    }
+  }
+```
+
+![image-20201014211351222](C:\Users\dn3\AppData\Roaming\Typora\typora-user-images\image-20201014211351222.png)
+
+JSP中：
+
+Java代码会原封不动的输出
+
+HTML代码会被转换为以下格式输出：
+
+```html
+out.write("<html>\r\n");
+```
+
+
+
+##### 5.2 JSP基础语法及指令
+
+以下代码最后会生成为Java文件，且都是**在_jspService()函数中**：
+
+###### JSP表达式：<%= %>
+
+```jsp
+1、JSP表达式：<%= 变量或者表达式%>		<%--在jsp中使用写Java代码,称为JSP表达式；用于将程序的输出输出客户端--%>
+<%= new java.util.Date()%>
+```
+
+###### JSP脚本片段：<% %>
+
+```jsp
+2、JSP脚本片段：<% %>
+<%
+    int sum = 0;
+    for (int i = 0; i <=10 ; i++) {
+        sum+=i;
+    }
+    out.println("<h1>Sum="+sum+"</h1>");
+%>
+
+3、在Java代码中嵌入HTML元素
+<%
+    for (int i =0;i<4;i++) {
+%>
+<h1>hello  <%=i%></h1>
+<%
+    }
+%>
+```
+
+实现在`_jspService()`**函数外**写代码，成为全局变量、函数：
+
+###### JSP声明  <%!     %>
+
+```jsp
+<%!
+    private int globalVar = 0;
+	public void function(){
+        
+    }
+%>
+```
+
+###### EL表达式  ${}
+
+也可以用${}代替<%%>。
+
+
+
+##### 5.3 JSP指令
+
+`<%@ page ......%>`
+
+```jsp
+<%@ page errorPage="error/500.jsp"%>  	<!--含义是定制错误页面。错误时显示的页面是error文件夹下的500.jsp，不再是系统默认的500错误页面-->
+
+也可以在web.xml中配置：
+<error-page>
+    <error-code>404</error-code>
+    <location>/error/404.jsp</location>
+</error-page>
+```
+
+`<%@ include ......%>`可以用于包含公共的头部和底部
+
+```jsp
+//@include将两个页面合二为一,将二者内容都取出来放在函数中，如果不同的页面有相同的变量就会报错
+<body>
+<%@include file="common/header.jsp"%>
+<h1>网页主体</h1>
+<%@include file="common/footer.jsp"%>
+    
+也可以用（用的更多）：
+    //jsp:include拼接页面，本质还是三个页面，变量相同也没关系
+    <jsp:include page="common/header.jsp"/>
+    <h1>网页主体</h1>
+	<jsp:include page="common/footer.jsp"/>
+</body>
+```
+
+##### 5.4  9大内置对象
+
+- PageContext     存数据
+- Resquest     存数据
+- Response
+- Session    存数据
+- Application     【相当于servletContext】存数据
+- config    【servletConfig】
+- out
+- page
+- exception
+
+```jsp
+<%
+    //存数据
+    pageContext.setAttribute("name1","刘德昱");//pageContext保存的数据只在“一个页面中有效”
+    request.setAttribute("name2","刘德昱");//request保存的数据只在“一个请求中有效，请求转发会携带这个数据”
+    session.setAttribute("name3","刘德昱");//保存的数据只在“一个会话中有效，从打开浏览器到关闭游览器”
+    application.setAttribute("name4","刘德昱");//保存的数据库只在“服务器中有效，从打开服务器到关闭服务器”
+%>
+
+
+<%
+    //找到数据   可以通过getAttribute，现在通过findAttribute寻找方式来实现
+    String name1 =  (String) pageContext.findAttribute("name1");
+    String name2 =  (String) pageContext.findAttribute("name2");
+    String name3 =  (String) pageContext.findAttribute("name3");
+    String name4 =  (String) pageContext.findAttribute("name4");
+%>
+
+<%--EL表达式取值--%>
+<h3>${name1}</h3>
+<h3>${name2}</h3>
+<h3>${name3}</h3>
+<h3>${name4}</h3>
+
+前端实现转发：
+pageContext.forward("/index.jsp");
+后台实现转发：
+request.getRequestDispatcher("/index.jsp").forward(requset,response);
+```
+
+request：客户端向服务器发送请求，产生的数据用户看完就没用了；比如：新闻
+
+session：服务器向服务器发送请求，产生的数据用户用完一会还有用；比如：购物车
+
+application：服务器向服务器发送请求，产生的数据一个用户用完了，其他用户还能使用；比如：聊天记录
+
+
+
+##### 5.5 JSP标签、 JSTL标签、EL表达式
+
+```xml
+		<!-- jstl表达式的依赖 -->
+        <dependency>
+            <groupId>javax.servlet.jsp.jstl</groupId>
+            <artifactId>jstl-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <!-- 表达式需要一些标签，下面是标签库 -->
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+```
+
+EL表达式：	${}
+
+- 获取数据
+- 执行运算
+- 获取web开发的常用对象
+
+
+
+###### **JSP标签**
+
+```jsp
+请求转发到jsp2.jsp页面，而且带两个参数（网址上会显示为jsp2.jsp?name=liudeyu&age=11）
+<jsp:forward page="/jsp2.jsp">
+    <jsp:param name="name" value="liudeyu"></jsp:param>
+    <jsp:param name="age" value="11"></jsp:param>
+</jsp:forward>
+```
+
+
+
+###### **JSTL标签**
+
+是为了弥补HTML标签的不足；
+
+1. 需要引入jstl核心标签库：
+
+```jsp
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+```
+
+![image-20201017162135635](C:\Users\dn3\AppData\Roaming\Typora\typora-user-images\image-20201017162135635.png)
+
+2.tomcat中或许没有jstl和其依赖的standard包，需要自己引入
+
+```jsp
+案例：
+//1   判断
+<form action="pageContext.jsp" method="get">
+    <input type="text" name="username" value="${param.username}">
+    <input type="submit" value="登录">
+</form>
+<c:if test="${param.username=='admin'}" var="isAdmin">   //test条件   var用于存储条件结果的变量  scopevar属性的作用域
+    <c:out value="登录成功"/>
+</c:if>
+<c:out value="${isAdmin}"/>		//输出true或false
+<%
+    //一般写法
+    if (request.getParameter("username").equals("admin")){
+        out.print("登录成功");
+    }
+%>
+//2   存储数据
+<c:set var="salary" scope="session" value="${2000*2}"/>   //定义一个变量叫salary，作用域实在session范围内，值为2000*2
+//3   when判断
+<c:choose>
+    <c:when test="${salary <= 0}">
+       太惨了。
+    </c:when>
+    <c:when test="${salary > 1000}">
+       不错的薪水，还能生活。
+    </c:when>
+    <c:otherwise>
+        什么都没有。
+    </c:otherwise>
+</c:choose>
+
+//4   便利数据
+<%
+    ArrayList<String> people = new ArrayList<>();
+    people.add(1,"张三");
+    people.add(2,"李四");
+    people.add(3,"王五");
+    request.setAttribute("list",people);//用一个名字为list的数组作为请求
+%>
+<c:forEach var="people" items="${list}">//items	要被循环的信息    var	代表当前条目的变量名称   相当于foreach(var people:list)
+    <c:out value="${people}"/><br>
+</c:forEach>
+```
+
+
+
+##### 5.6  JavaBean
+
+**实体类**
+
+特性写法：
+
+1. 必须有一个无参构造
+2. 属性必须私有化
+3. 必须有对应的get/set方法
+
+<font color ="yellogreen">实体类一般用于和数据库的字段做映射，一一对应！</font>
+
+ORM（对象关系映射）：
+
+- 数据库中的“表”------->类
+- 字段------->属性
+- 行记录------>类的对象
+
+**People表**
+
+| id   | name  | age  | address |
+| ---- | ----- | ---- | ------- |
+| 1    | 张三1 | 11   | 武汉    |
+| 2    | 张三2 | 12   | 武汉    |
+| 3    | 张三3 | 13   | 武汉    |
+
+```Java
+class People{		//people表对应的people实体类
+    private int id;
+    private String name;
+    private int age;
+    private String address;
+}
+
+class A {
+    new People(4,"张三4",15,"武汉");
+}
+```
+
+
+
+##### 5.7 MVC三层架构
+
+含义：Model模型     View视图     Controller控制器
+
+![image-20201019130322280](C:\Users\dn3\AppData\Roaming\Typora\typora-user-images\image-20201019130322280.png)
+
+Model
+
+- 业务处理：业务逻辑（Service）
+- 数据持久层CRUD（Dao）
+
+View
+
+- 展示数据
+- 提供链接发起servlet请求
+
+Controller
+
+- 接收用户的请求（request：请求参数、session信息）
+- 交给业务层处理对应的代码
+- 控制视图的跳转
+
+```
+例子：
+登录----->Controller接收用户的登录请求----->处理用户的请求（获取用户登录的参数，username，password）------>交给业务层Model处理登录业务（判断用户名密码是否正确：事务）---->Dao层查询用户名、密码是否正确----->数据库
+```
+
+
+
+##### 5.8 过滤器（重点）
+
+Filter：过滤器，用于过滤网站的数据（例如：处理中文乱码、登录验证...）
+
+实现步骤：
+
+1. 导包：过滤需要实现implements Filter接口（javax.servlet下的）
+
+2. 在过滤器doFilter函数中写代码
+
+   1. ```java
+      //初始化   ：服务器打开则执行
+          public void init(FilterConfig filterConfig) throws ServletException {
+      
+          }
+      
+          //filterChain过滤链,可以有很多个过滤器-----------实现放行的作用
+          /*
+          * 1、过滤器中的所有代码，在过滤特定请求的时候都会执行
+          * 2、必须让过滤器继续执行
+          *   filterChain.doFilter(servletRequest,servletResponse);//让我们的请求继续走，若不写这句，程序到这就会停止
+          * */
+          public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+              servletRequest.setCharacterEncoding("utf-8");
+              servletResponse.setCharacterEncoding("utf-8");
+              servletResponse.setContentType("text.html;charset=utf-8");
+      
+              System.out.println("执行前。。。");
+              filterChain.doFilter(servletRequest,servletResponse);//让我们的请求继续走，若不写这句，程序到这就会停止
+              System.out.println("执行后。。。");
+          }
+      
+          //销毁  ：服务器关闭就销毁
+          public void destroy() {
+      
+          }
+      ```
+
+3. 在web.xml中配置
+
+   1. ```xml
+      	<filter>
+              <filter-name>CharacterEncodingFilter</filter-name>
+              <filter-class>com.daryl.filter.CharacterEncodingFilter</filter-class>
+          </filter>
+          <filter-mapping>
+              <filter-name>CharacterEncodingFilter</filter-name>
+              <url-pattern>/servlet/*</url-pattern><!--只要是/servlet文件下的任何请求都会经过这个过滤器-->
+          </filter-mapping>
+      ```
+
+      
+
+##### 5.9 监听器
+
+Listener：实现一个监听器的接口；
+
+在web.xml中配置监听器
+
+```xml
+<listener>
+    <listener-class>com.daryl.listener.OnlineListener</listener-class>
+</listener>
+```
+
+Java中的代码：实现监听在线人数---->统计网站在线人数：通过监听session，一个session对应一个人
+
+```Java
+public class OnlineListener implements HttpSessionListener {
+    //session创建的监听    创建一次就会触发监听
+    public void sessionCreated(HttpSessionEvent se) {
+        ServletContext ctx = se.getSession().getServletContext();
+        Integer onlineCount = (Integer) ctx.getAttribute("OnlineCount");//实现的是session创建后获取OnlineCount的session对象
+
+        if (onlineCount == null) {
+            onlineCount = new Integer(1);
+        }else {
+            int count = onlineCount.intValue();
+            onlineCount = new Integer(count++);
+        }
+
+        ctx.setAttribute("OnlineCount",onlineCount);
+    }
+
+    //session销毁的监听
+    public void sessionDestroyed(HttpSessionEvent se) {
+        ServletContext ctx = se.getSession().getServletContext();
+        Integer onlineCount = (Integer) ctx.getAttribute("OnlineCount");//实现的是session创建后获取OnlineCount的session对象
+
+        if (onlineCount == null) {
+            onlineCount = new Integer(0);
+        }else {
+            int count = onlineCount.intValue();
+            onlineCount = new Integer(count--);
+        }
+
+        ctx.setAttribute("OnlineCount",onlineCount);
+    }
+}
+```
+
+
+
+##### 5.10 过滤器、监听器常用功能
+
+- 登录拦截：用户注册之后才能进入主页，注销之后就不能进入主页了
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
