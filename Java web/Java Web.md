@@ -1274,19 +1274,172 @@ public class OnlineListener implements HttpSessionListener {
 
 ##### 5.11 JDBC回顾
 
+Java连接数据库。（Java database connecttion）
+
+![image-20201026194824978](C:\Users\dn3\AppData\Roaming\Typora\typora-user-images\image-20201026194824978.png)
+
+需要jar包的支持：
+
+- Java.sql
+- javax.sql
+- mysql-connect-Java...连接驱动，必须要导入
+
+```xml
+		<!--连接数据库驱动配置-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.19</version>
+        </dependency>
+```
+
+数据库表的操作：
+
+```sql
+create table users(//创建表
+    id INT PRIMARY KEY,
+    'name' varchar(20),
+    'password' varchar(20)
+);
+//插入表
+INSERT INTO users(id,'name','password')
+VALUES(1,'张三','123456');
+
+```
+
+JDBC固定操作：
+
+```Java
+public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        String url = "jdbc:mysql://localhost:3306/数据库名?useUnicode=true&characterEncoding=utf-8&useSSL=true";
+        String username = "root";
+        String password = "123456";
+        //1、加载驱动
+        Class.forName("com.mysql.jdbc.Driver");
+        //2、连接数据库     connection代表数据库，DriverManager驱动管理，管理数据库
+        Connection connection = DriverManager.getConnection(url, username, password);
+        //3、向数据库发送sql的对象,用statement做增删改查
+        Statement statement = connection.createStatement();
+        //4、编写sql
+        String sql = "select * from users";//查
+    	String sql1 = "delete * from users where id = 4";//删
+        //5、执行sql,返回一个结果集
+        ResultSet rs = statement.executeQuery(sql);//查询
+    	int i = statement.executeUpdate(sql1);//受影响的行数；增删改都用executeUpdate
+        
+        while (rs.next()) {
+            System.out.println("id="+rs.getObject("id"));
+            System.out.println("id="+rs.getObject("username"));
+            System.out.println("id="+rs.getObject("passsword"));
+        }
+        //6、关闭连接，释放资源（先开的后关）
+        rs.close();
+        statement.close();
+        connection.close();
+    }
+```
+
+预编译sql：
+
+```Java
+public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        String url = "jdbc:mysql://localhost:3306/数据库名?useUnicode=true&characterEncoding=utf-8&useSSL=true";
+        String username = "root";
+        String password = "123456";
+        //1\加载驱动
+        Class.forName("com.mysql.jdbc.Driver");
+        //2\连接数据库     connection代表数据库
+        Connection connection = DriverManager.getConnection(url, username, password);
+        //3\编写sql
+        String sql = "insert into 数据库名(id,username,password) values (?,?,?)";
+        //4、预编译
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);//在这会执行sql，sql中若有参数
+        preparedStatement.setInt(1,1);//给第1个占位符？的值赋值为1
+        preparedStatement.setString(2,"liudeyu");//给第2个占位符？的值赋值为liudeyu
+        preparedStatement.setString(3,"123456");//给第3个占位符？的值赋值为123456
+        //5执行sql
+        int i = preparedStatement.executeUpdate();
+        if (i > 0) {
+            System.out.println("插入成功");
+        }
+        //6\关闭连接，释放资源（先开的后关）
+        preparedStatement.close();
+        connection.close();
+    }
+```
+
+###### 5.11.1 事务
+
+要么都成功，要么都失败！(ACID原则)
+
+```java
+1、开启事务	start transaction;
+2、事务提交	commit()
+3、事务回滚	rollback()
+4、关闭事务
+    
+例子：转账
+    A:1000		B:1000
+    A(900)---(100)-->B(1100)//(实现若网络断开，则要不100给了B之后双方都变，要不都还是1000)
+```
 
 
 
+Junit单元测试：
 
+依赖：
 
+```xml
+<!--单元测试-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+        </dependency>
+```
 
+使用：
 
+```Java
+	@Test			
+    public void test(){ //使用@Test注解（只在方法上有效）  就不用再使用main方法来调用了，可以直接执行函数进行测试
+        System.out.println("Hello");
+    }
+```
 
+**搭建环境测试事务**：
 
+```Java
+	@Test
+    public void test() { //使用@Test  就不用再使用main方法来调用了，可以直接执行函数进行测试
+        String url = "jdbc:mysql://localhost:3306/数据库名?useUnicode=true&characterEncoding=utf-8&useSSL=true";
+        String username = "root";
+        String password = "123456";
 
+        Connection connection = null;
+        try {
+            //1 加载驱动
+            Class.forName("com.mysql.jdbc.Driver");
 
-
-
-
-
+            //2 连接数据库     connection代表数据库
+            connection = DriverManager.getConnection(url, username, password);
+            //3 通知数据库开启事务   false是开启
+            connection.setAutoCommit(false);
+            String sql = "update account set money = money-100 where name = 'A";
+            connection.prepareStatement(sql).executeUpdate();
+            //制造错误
+            int i = 1/0;
+            String sql2 = "update account set money = money+100 where name = 'B";
+            connection.prepareStatement(sql2).executeUpdate();
+            connection.commit();//以上两条都执行成功则提交事务
+            } catch (Exception e) {
+            try {//如果出现异常就通知数据库“回滚”操作
+                connection.rollback();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            e.printStackTrace();
+            }
+    }
+```
 
