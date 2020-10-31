@@ -107,7 +107,7 @@ MyBatis 是一款优秀的**持久层框架**
    </environments>
        <!--注册mapper-->
        <mappers>
-           <mapper resource="com/daryl/dao/UserDaoImpl"/>
+           <mapper resource="com/daryl/dao/UserMapper.xml"/>
        </mappers>
    </configuration>
    ```
@@ -248,4 +248,206 @@ public class UserDaoTest {
 
 ---
 
-#### 5、增删改查实现
+#### 5、增删改查CRUD实现
+
+1. namespace
+
+   - namespace内部的包名要与Dao/Mapper接口中的包名一致
+
+2. select
+
+   - id：对应的namespace中的方法名
+   - resultType：Sql语句执行的返回值类型 
+   - parameterType：参数类型
+
+3. Insert、update、delete
+
+   1. 编写接口
+
+      ```Java
+      public interface UserMapper {
+          //查询全部用户
+          List<User> getUserList();
+          //根据id查询
+          User getUserById(int id);
+          //增加一个用户
+          int addUser(User user);
+          //修改用户
+          int updateUser(User user);
+          //删除一个用户
+          int deleteUser(int id);
+      }
+      ```
+
+   2. 编写mapper中的语句
+
+      ```Java
+      <!--下面一句 相当于选择UserDao接口中的getUserList方法，返回User类型的结果-->
+          <select id="getUserList" resultType="com.daryl.entity.User">
+              select * from mybatis.user
+          </select>
+          
+          <select id="getUserById" parameterType="int" resultType="com.daryl.entity.User">
+              select * form mybatis.user where id = #{id};
+          </select>
+      
+          <!--对象中的属性可以直接取出来-->
+          <insert id="addUser" parameterType="com.daryl.entity.User">
+              insert into mybatis.user (id, name, pwd) VALUES (#{id},#{name},#{pwd});
+          </insert>
+      
+          <update id="updateUser" parameterType="com.daryl.entity.User">
+              update mybatis.user
+              set name=#{name},pwd=#{pwd}
+              where id=#{id};
+          </update>
+      
+          <delete id="deleteUser" parameterType="int">
+              delete from mybatis.user where id=#{id};
+          </delete>
+      ```
+
+   3. 测试
+
+      ```Java
+      @Test
+          public void getUserById() {
+              SqlSession sqlSession = MybatisUtils.getSqlSession();
+      
+              UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+              User user = mapper.getUserById(1);
+              System.out.println(user);
+      
+              sqlSession.close();
+          }
+      
+          //增删改需要提交事务
+          @Test
+          public void addUser() {
+              SqlSession sqlSession = MybatisUtils.getSqlSession();
+      
+              UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+              int res = mapper.addUser(new User(4, "刘德昱", "3556"));
+              if (res > 0) {
+                  System.out.println("插入成功");
+              }
+              //提交事务
+              sqlSession.commit();
+      
+              sqlSession.close();
+          }
+      
+          @Test
+          public void updateUser() {
+              SqlSession sqlSession = MybatisUtils.getSqlSession();
+              UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+              mapper.updateUser(new User(2,"张2","123123"));
+      
+              //提交事务
+              sqlSession.commit();
+              sqlSession.close();
+          }
+      
+          @Test
+          public void deleteUser(){
+              SqlSession sqlSession = MybatisUtils.getSqlSession();
+              UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+              mapper.deleteUser(1);
+      
+              //提交事务
+              sqlSession.commit();
+      
+              sqlSession.close();
+          }
+      ```
+   
+   ###### 4、模糊查询
+   
+   1. Java代码执行的时候，传递通配符% %；
+   2. 在sql拼接中使用通配符！
+   
+   ```java
+   Dao中：
+   List<User> getUserLike(String name);
+   
+   Dao对应的Mapper：
+   	<select id="getUserLike" resultType="com.daryl.entity.User">
+       	select * from mybatis.user where name like #{name}
+       </select> 
+   测试代码：
+            @Test
+       public void getUserLike(){
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+           UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+           List<User> userList = mapper.getUserLike("%王%");//%王%：意思是模糊查询带”王”的数据
+           //%王：意思是查找出以“王”结尾的数据
+           
+           for(User user:userList){
+               System.out.println(user);
+           }
+   
+           sqlSession.close();
+       }
+   ```
+
+
+
+#### 6、万能的Map
+
+若我们的实体类或者数据库表中**字段或参数过多时**，我们应该考虑用Map或者用<u>注解</u>。（不够正规）
+
+```Java
+int addUser(Map<String,Object> map);
+------------------------
+<insert id="addUser2" parameterType="map">
+        insert into mybatis.user (id, name, pwd) VALUES (#{userId},#{userName},#{userPwd});//map的话后面可以随便起名
+    </insert>
+---------------------------
+     @Test
+    public void addUser() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        Map<String,Object> map = new HashMap(String,Object);
+        map.put("userId",5);
+        map.put("userName","王五");
+        map.put("userPwd","123123");
+
+        sqlSession.close();
+    }   
+```
+
+Map传递参数，直接在sql中取出key即可；
+
+对象传递参数，直接在sql中去对象的属性即可；
+
+只有一个参数的情况下，可直接在sql中取到。
+
+---
+
+
+
+#### 7、配置解析
+
+##### 7.1核心配置文件
+
+- mybatis-config.xml
+- Mybatis的配置文件包含了会深深影响Mybatis行为的设置和属性信息。
+
+```xml
+properties 属性
+settings 设置
+typeAliases 类型命名
+typeHandlers 类型处理器
+objectFactory 对象工厂
+plugins 插件
+environments 环境
+environment 环境变量
+transactionManager 事务管理器
+dataSource 数据源
+databaseIdProvider 数据库厂商标识
+mappers 映射器
+```
+
+
+
