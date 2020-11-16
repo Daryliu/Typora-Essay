@@ -399,7 +399,7 @@ public class UserDaoTest {
 ```Java
 int addUser(Map<String,Object> map);
 ------------------------
-<insert id="addUser2" parameterType="map">
+<insert id="addUser2" parameterType="map">		//其中map是Map的别名
         insert into mybatis.user (id, name, pwd) VALUES (#{userId},#{userName},#{userPwd});//map的话后面可以随便起名
     </insert>
 ---------------------------
@@ -736,116 +736,491 @@ public class User {
 
   - 2、在类路径下创建log4j.properties文件进行配置
 
-    - ```java
-      log4j.rootLogger=INFO,consoleAppender,logfile,MAIL			//日志输出的位置
-      log4j.addivity.org.apache=true
-      #ConsoleAppender，控制台输出
-      #FileAppender，文件日志输出
-      #SMTPAppender，发邮件输出日志
-      #SocketAppender，Socket 日志
-      #NTEventLogAppender，Window NT 日志
-      #SyslogAppender，
-      #JMSAppender，
-      #AsyncAppender，
-      #NullAppender
-      #文件输出：RollingFileAppender
-      #log4j.rootLogger = INFO,logfile
-      log4j.appender.logfile = org.apache.log4j.RollingFileAppender
-      log4j.appender.logfile.Threshold = INFO
-      # 输出以上的 INFO 信息
-      log4j.appender.logfile.File = INFO_log.html
-      #保存 log 文件路径
-      Log4j 从入门到详解
-      10
-      log4j.appender.logfile.Append = true		//日志输出到文件
-      # 默认为 true，添加到末尾，false 在每次启动时进行覆盖
-      log4j.appender.logfile.MaxFileSize = 1MB		//日志切割
-      # 一个 log 文件的大小，超过这个大小就又会生成 1 个日志 # KB ，MB，GB
-      log4j.appender.logfile.MaxBackupIndex = 3		//最多保存三个备份
-      # 最多保存 3 个文件备份
-      log4j.appender.logfile.layout = org.apache.log4j.HTMLLayout
-      # 输出文件的格式
-      log4j.appender.logfile.layout.LocationInfo = true
-      #是否显示类名和行数
-      log4j.appender.logfile.layout.Title
-      =title:\u63d0\u9192\u60a8\uff1a\u7cfb\u7edf\u53d1\u751f\u4e86\u4e25\u91cd\u9519\u8b
-      ef
-      #html 页面的 < title >
-      ############################## SampleLayout ####################################
-      # log4j.appender.logfile.layout = org.apache.log4j.SampleLayout
-      ############################## PatternLayout ###################################
-      # log4j.appender.logfile.layout = org.apache.log4j.PatternLayout
-      # log4j.appender.logfile.layout.ConversionPattern =% d % p [ % c] - % m % n % d
-      ############################## XMLLayout #######################################
-      # log4j.appender.logfile.layout = org.apache.log4j.XMLLayout
-      # log4j.appender.logfile.layout.LocationInfo = true #是否显示类名和行数
-      ############################## TTCCLayout ######################################
-      # log4j.appender.logfile.layout = org.apache.log4j.TTCCLayout
-      # log4j.appender.logfile.layout.DateFormat = ISO8601
-      #NULL, RELATIVE, ABSOLUTE, DATE or ISO8601.
-      # log4j.appender.logfile.layout.TimeZoneID = GMT - 8 : 00
-      # log4j.appender.logfile.layout.CategoryPrefixing = false ##默认为 true 打印类别名
-      # log4j.appender.logfile.layout.ContextPrinting = false ##默认为 true 打印上下文信息
-      # log4j.appender.logfile.layout.ThreadPrinting = false ##默认为 true 打印线程名
-      # 打印信息如下：
-      #2007 - 09 - 13 14 : 45 : 39 , 765 [http - 8080 - 1 ] ERROR com.poxool.test.test -
-      error 成功关闭链接
-      ###############################################################################
-      #每天文件的输出：DailyRollingFileAppender
-      #log4j.rootLogger = INFO,errorlogfile
-      log4j.appender.errorlogfile = org.apache.log4j.DailyRollingFileAppender
-      log4j.appender.errorlogfile.Threshold = ERROR
-      log4j.appender.errorlogfile.File = ../logs/ERROR_log
-      log4j.appender.errorlogfile.Append = true
-      #默认为 true，添加到末尾，false 在每次启动时进行覆盖
-      log4j.appender.errorlogfile.ImmediateFlush = true
-      #直接输出，不进行缓存
-      # ' . ' yyyy - MM: 每个月更新一个 log 日志
-      # ' . ' yyyy - ww: 每个星期更新一个 log 日志
-      # ' . ' yyyy - MM - dd: 每天更新一个 log 日志
-      # ' . ' yyyy - MM - dd - a: 每天的午夜和正午更新一个 log 日志
-      # ' . ' yyyy - MM - dd - HH: 每小时更新一个 log 日志
-      # ' . ' yyyy - MM - dd - HH - mm: 每分钟更新一个 log 日志
-      Log4j 从入门到详解
-      11
-      log4j.appender.errorlogfile.DatePattern = ' . ' yyyy - MM - dd ' .log '		//日志名称的格式
-      #文件名称的格式
-      log4j.appender.errorlogfile.layout = org.apache.log4j.PatternLayout
-      log4j.appender.errorlogfile.layout.ConversionPattern =%d %p [ %c] - %m %n %d
-      #控制台输出：
-      #log4j.rootLogger = INFO,consoleAppender
-      log4j.appender.consoleAppender = org.apache.log4j.ConsoleAppender
-      log4j.appender.consoleAppender.Threshold = ERROR
-      log4j.appender.consoleAppender.layout = org.apache.log4j.PatternLayout
-      log4j.appender.consoleAppender.layout.ConversionPattern =%d %-5p %m %n
-      log4j.appender.consoleAppender.ImmediateFlush = true
-      # 直接输出，不进行缓存
-      log4j.appender.consoleAppender.Target = System.err
-      # 默认是 System.out 方式输出
-      #发送邮件：SMTPAppender
-      #log4j.rootLogger = INFO,MAIL
-      log4j.appender.MAIL = org.apache.log4j.net.SMTPAppender
-      log4j.appender.MAIL.Threshold = INFO
-      log4j.appender.MAIL.BufferSize = 10
-      log4j.appender.MAIL.From = yourmail@gmail.com
-      log4j.appender.MAIL.SMTPHost = smtp.gmail.com
-      log4j.appender.MAIL.Subject = Log4J Message
-      log4j.appender.MAIL.To = yourmail@gmail.com
-      log4j.appender.MAIL.layout = org.apache.log4j.PatternLayout
-      log4j.appender.MAIL.layout.ConversionPattern =%d - %c -%-4r [%t] %-5p %c %x - %m %n
-      #数据库：JDBCAppender
-      log4j.appender.DATABASE = org.apache.log4j.jdbc.JDBCAppender
-      log4j.appender.DATABASE.URL = jdbc:oracle:thin:@ 210.51 . 173.94 : 1521 :YDB
-      log4j.appender.DATABASE.driver = oracle.jdbc.driver.OracleDriver
-      log4j.appender.DATABASE.user = ydbuser
-      log4j.appender.DATABASE.password = ydbuser
-      log4j.appender.DATABASE.sql = INSERT INTO A1 (TITLE3) VALUES ( ' %d - %c %-5p %c %x - %m%n
-      ' )
-      log4j.appender.DATABASE.layout = org.apache.log4j.PatternLayout
-      log4j.appender.DATABASE.layout.ConversionPattern =% d - % c -%- 4r [ % t] %- 5p % c %
-      x - % m % n
-      #数据库的链接会有问题，可以重写 org.apache.log4j.jdbc.JDBCAppender 的 getConnection() 使用数
-      据库链接池去得链接，可以避免 insert 一条就链接一次数据库
+    - ```properties
+      #将等级为DEBUG的日志信息输出到console和file这两个目的地，console和file的定义在下面的代码
+      log4j.rootLogger=DEBUG,console,file
+      
+      #控制台输出的相关设置
+      log4j.appender.console = org.apache.log4j.ConsoleAppender
+      log4j.appender.console.Target = System.out
+      log4j.appender.console.Threshold=DEBUG
+      log4j.appender.console.layout = org.apache.log4j.PatternLayout
+      log4j.appender.console.layout.ConversionPattern=【%c】-%m%n		//格式
+      
+      #文件输出的相关设置
+      log4j.appender.file = org.apache.log4j.RollingFileAppender
+      log4j.appender.file.File=./log/daryl.log		//输出文件的位置
+      log4j.appender.file.MaxFileSize=10mb
+      log4j.appender.file.Threshold=DEBUG
+      log4j.appender.file.layout=org.apache.log4j.PatternLayout
+      log4j.appender.file.layout.ConversionPattern=【%p】【%d{yy-MM-dd}】【%c】%m%n
+      
+      #日志输出级别
+      log4j.logger.org.mybatis=DEBUG
+      log4j.logger.java.sql=DEBUG
+      log4j.logger.java.sql.Statement=DEBUG
+      log4j.logger.java.sql.ResultSet=DEBUG
+      log4j.logger.java.sql.PreparedStatement=DEBUG
+      ```
+      
+    
+  - 3、配置log4j为日志的实现（mybatis-config.xml中）
+  
+    - ```xml
+      <settings>
+          <setting name="logImpl" value="" />
+      </settings>
+      ```
+  
+  - 4、Log4j的使用，直接测试运行上面的查询
+  
+    - ```Java
+      //1、在要使用Log4j的类中导入包import org.apache.log4j.Logger;
+      //2、日志对象，参数为当前类的class
+      static Logger logger = Logger.getLogger(UserDaoTest.class);
+      //3、使用
+      @Test
+      public void testLogger(){
+          Logger.info("info");		//3中日志级别
+          logger.degug("debug");
+          logger.error("error");
+      }
       ```
 
-      
+#### 8、 Limit实现分页
+
+```sql
+SELECT * FROM user limit 0,2;		//查询从第0个开始，每页2个
+SELECT * FROM user limit 2;			//查询从0开始，到2
+SELECT * FROM user limit 4,-1;		//查询从第4个开始，直到最后一个（已经被修复了，不再使用）
+```
+
+使用mybatis实现分页，核心是Sql！
+
+1. 在UserMapper.class接口 中
+
+   - ```Java
+     //实现分页
+     List<User> getUserByLimit(Map<String,Integer> map);
+     ```
+
+2. 在UserMapper.xml中（sql实现分页）
+
+   - ```xml
+     <!--分页查询，Map的别名就是map-->
+     <select id="getUserByLimit" parameterType="map" resultType="com.daryl.entity.User">
+         select * from mybatis.user limit #{startIndex},#{pageSize}
+     </select>
+     ```
+
+3. 在测试代码中
+
+   - ```java 
+     @Test
+     public void getUserLimit(){
+         SqlSession sqlSession = MybatisUtils.getSqlSession();
+         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+         HashMap<String, Integer> map = new HashMap<String, Integer>();
+         map.put("startIndex",0);
+         map.put("pageSize",2);
+         List<User> userLimit = mapper.getUserByLimit(map);
+         for (User user : userLimit) {
+             System.out.println(user);
+         }
+         sqlSession.close();
+     }
+     ```
+
+#### 9、 RowBounds类 分页（面向对象；不建议使用）
+
+1. 在UserMapper.class接口 中
+
+   - ```Java
+     //实现分页
+     List<User> getUserByRowBounds();
+     ```
+
+2. 在UserMapper.xml中
+
+   - ```xml
+     <!--分页查询，Map的别名就是map-->
+     <select id="getUserByRowBounds" resultType="com.daryl.entity.User">
+         select * from mybatis.user 
+     </select>
+     ```
+
+3. 在测试代码中（分页交给面向对象的Java语句做）
+
+   - ```java 
+     @Test
+     public void getUserByRowBounds(){
+         SqlSession sqlSession = MybatisUtils.getSqlSession();
+         //RowBounds实现分页
+         RowBounds rowBounds = new RowBounds(0,2);//从第0个开始每页两个
+         //通过Java代码层面实现分页
+         List<User> userlist = sqlSession.selectList("com.daryl.dao.UserMapper.getUserByRowBounds",null,rowBounds);	
+         for (User user : userLimit) {
+             System.out.println(user);
+         }
+         sqlSession.close();
+     }
+     ```
+
+4. **分页插件**
+
+   - **<u>MyBatis的PageHelper分页插件（方法与RowBounds一样）</u>**
+
+---
+
+#### 10、 使用注解开发
+
+对于简单语句来说，注解使代码显得更加简洁，然而 Java 注解对于稍微复杂的语句就会力不从心并且会显得更加混乱。因此，如果你需要做很复杂的事情，那么最好使用 XML 来映射语句。
+
+- **注解**：不再需要UserMapper.xml文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.mybatis.example.BlogMapper">
+  <select id="selectBlog" resultType="Blog">
+    select * from Blog where id = #{id}
+  </select>
+</mapper>
+```
+
+- 替换为：
+
+```Java
+package org.mybatis.example;
+public interface BlogMapper {
+  @Select("SELECT * FROM user WHERE id = #{id}")
+  User selectBlog(int id);
+}
+```
+
+- 在mybatis-config.xml核心配置文件中绑定接口的类：
+
+```xml
+<!--绑定接口-->
+<mappers>
+    <mapper class="com.daryl.dao.UserMapper" />
+</mappers>
+```
+
+- 测试代码：
+
+```Java
+@Test
+public void selectBlog(){
+    SqlSession sqlSession = MybatisUtils.getSqlSession();
+    //底层主要用反射机制
+    UserMapper mapper =sqlSession.getMapper(UserMapper.class);	
+    List<User> userlist = mapper.getUsers();
+    for (User user : userLimit) {
+        System.out.println(user);
+    }
+    sqlSession.close();
+}
+```
+
+##### 10.1面向接口编程
+
+接口：解耦！！上层不管具体的实现。接口实现了定义与实现的分离。
+
+##### 10.2注解实现CRUD
+
+1. 工具类修改为自动提交事务（true）
+
+   ```Java
+   private static SqlSessionFactory SqlSessionFactory;
+   static {
+       try {
+           String resource = "mybatis-config.xml";
+           InputStream inputStream = Resources.getResourceAsStream(resource);
+           SqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+   
+   }
+   public static SqlSession getSqlSession() {
+       return SqlSessionFactory.openSession(true);//自动提交事务
+   }
+   ```
+
+2. UserMapper.java接口文件
+
+   - ```Java
+     //通过id查询
+     public interface UserMapper {
+         @Select("select * from user")
+         List<User> getUsers();
+         
+         @Select("select * from user where id=#{id}")
+         List<User> getUserById(@Param("id") int id);//存在多个参数必须加@Param。sql语句取值也是从@Param中取的
+         
+         @Insert("insert into user(id,name,pwd) values (#{id},#{name},#{password})")	//后面是实体类中的变量名
+         int addUser(User user);
+         
+         @Update("update user set name=#{name},pwd=#{password},id=#{id})
+         int updateUser(User user);
+         
+         @Delete("delete from user where id=#{id}")
+         int deleteUser(@Param("id") int id);
+     }
+     ```
+
+3. 在mybatis-config.xml核心配置文件中绑定接口的类：
+
+   - ```xml
+     <!--绑定接口-->
+     <mappers>
+         <mapper class="com.daryl.dao.UserMapper" />
+     </mappers>
+     ```
+
+4. 测试
+
+   - ```java
+     @Test
+     public void getUserById(){//查询
+         SqlSession sqlSession = MybatisUtils.getSqlSession();
+         UserMapper mapper =sqlSession.getMapper(UserMapper.class);	
+         User user = mapper.getUserById(1);
+         System.out.println(user);
+         sqlSession.close();
+     }
+     
+     @Test
+     public void addUser(){//增加
+         SqlSession sqlSession = MybatisUtils.getSqlSession();
+         UserMapper mapper =sqlSession.getMapper(UserMapper.class);	
+         mapper.addUser(new User(5,"刘","1111"));
+         sqlSession.close();
+     }
+     
+     
+     @Test
+     public void updateUser(){//增加
+         SqlSession sqlSession = MybatisUtils.getSqlSession();
+         UserMapper mapper =sqlSession.getMapper(UserMapper.class);	
+         mapper.updateUser(new User(5,"德语","23232"));
+         sqlSession.close();
+     }
+     
+     @Test
+     public void deleteUser(){//删除
+         SqlSession sqlSession = MybatisUtils.getSqlSession();
+         UserMapper mapper =sqlSession.getMapper(UserMapper.class);	
+         mapper.deleteUser(1);
+         sqlSession.close();
+     }
+     ```
+
+**关于@Param()注解**
+
+- 基本类型的参数或者String类型的参数，需要加上
+- 引用类型不用加
+- 若只有一个基本类型的话可以不加，但是建议加上
+- 在sql中引用的就是@Param()设定的属性名！
+
+
+
+**#{}和${}的区别？**
+
+- 第一种可以防止sql注入
+- 用第二种不安全
+
+
+
+#### 11、 Lombok插件的使用
+
+Project Lombok是一个java库，它可以自动插入到编辑器和构建工具中，只用在类上加注解，为java增添趣味。
+
+使用步骤：
+
+1. 在idea安装lombok插件
+
+2. 在项目中导入lombok的jar包
+
+   - ```xml
+     <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+     <dependency>
+         <groupId>org.projectlombok</groupId>
+         <artifactId>lombok</artifactId>
+         <version>1.18.16</version>
+         <scope>provided</scope>
+     </dependency>
+     ```
+
+3. 在程序**“实体类”**上加注解
+
+```Java
+@Getter and @Setter
+@FiledNameConstants
+@ToString（生成toString）
+@EqualsAndHashCode
+@AllArgsConstructor（有参构造）,@RequiredArgsConstructor and @NoArgsConstructor（无参构造）
+@Log,@Log4j,@Log4j2,@slf4j,@CommonsLog,@JBossLog,@Flogger
+@Data		//在类上加了这个之后，就不用写get、set、有参、无参、toString、hashcode、equal（放在字段上则只生成字段的）
+@Builder
+@Singular
+@Delegate
+@Value
+@Accessors
+@Wither
+@SneakyThrows
+```
+
+
+
+#### 12、 复杂查询环境搭建
+
+##### 12.1多对一处理
+
+SQL：
+
+```sql
+CREATE TABLE `teacher` (
+    `id` INT(10) NOT NULL,
+    `name` VARCHAR(30) DEFAULT NULL,
+    PRIMARY KEY(`id`)
+)ENGINE=INNODB DRFAULT CHARSET=utf-8
+
+INSERT INTO teacher(`id`,`name`) VALUES (1,'秦老师');
+
+CREATE TABLE `student` (
+    `id` INT(10) NOT NULL,
+    `name` VARCHAR(30) DEFAULT NULL,
+    `tid` VARCHAR(30) DEFAULT NULL,
+    PRIMARY KEY(`id`),
+    KEY `fktid` (`tid`),
+    CONSTRAINT `fktid` FOREIGN KEY (`tid`) REFERENCES `teacher` (`id`)
+)ENGINE=INNODB DRFAULT CHARSET=utf-8
+
+INSERT INTO student(`id`,`name`,`tid`) VALUES (`1`,'秦老师',`1`);
+INSERT INTO student(`id`,`name`,`tid`) VALUES (`2`,'秦老师',`1`);
+INSERT INTO student(`id`,`name`,`tid`) VALUES (`3`,'秦老师',`1`);
+INSERT INTO student(`id`,`name`,`tid`) VALUES (`4`,'秦老师',`1`);
+INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
+```
+
+环境搭建：
+
+1. 导入lombok
+
+2. 新建实体类Teacher，Student
+
+   - ```Java
+     @Data
+     public class Student {
+         private int id;
+         private String name;
+         //学生关联一个老师
+         private Teacher teacher;
+     }
+     ```
+
+   - ```Java
+     @Data
+     public class Teacher {
+         private int id;
+         private String name;
+     }
+     ```
+
+3. 建立mapper接口
+
+   - ```java
+     public interface StudentMapper {
+     
+     }
+     ```
+
+   - ```Java
+     public interface TeacherMapper {
+         @Select("select * from teacher where id = #{tid}")
+         Teacher getTeacher(@Param("tid") int id);
+     }
+     ```
+
+4. 建立mapper.xml文件
+
+   - ```xml
+     <?xml version="1.0" encoding="UTF-8" ?>
+     <!DOCTYPE mapper
+             PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+             "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+     <!--核心配置文件-->
+     <mapper namespace="com.daryl.dao.StudentMapper">
+     
+     </mapper>
+     ```
+
+   - ```xml
+     <?xml version="1.0" encoding="UTF-8" ?>
+     <!DOCTYPE mapper
+             PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+             "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+     <!--核心配置文件-->
+     <mapper namespace="com.daryl.dao.TeacherMapper">
+     
+     </mapper>
+     ```
+
+5. 在核心配置文件中绑定mapper接口
+
+   - ```xml
+     <?xml version="1.0" encoding="UTF-8" ?>
+     <!DOCTYPE configuration
+             PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+                     "http://mybatis.org/dtd/mybatis-3-config.dtd">
+             <!--核心配置文件-->
+     <configuration>
+     
+         <properties resource="db.properties"/>
+     
+         <settings>
+             <setting name="logImpl" value="STDOUT_LOGGING"/>
+         </settings>
+     
+     <!--配置环境-->
+     <environments default="development">
+         <environment id="development">
+             <transactionManager type="JDBC"/><!--事务管理-->
+             <dataSource type="POOLED">
+                 <property name="driver" value="${driver}"/>
+                 <property name="url" value="${url}"/>
+                 <property name="username" value="${username}"/>
+                 <property name="password" value="${pwd}"/>
+             </dataSource>
+         </environment>
+     </environments>
+     
+         <mappers>
+             <mapper class="com.daryl.dao.TeacherMapper" />
+             <mapper class="com.daryl.dao.StudentMapper" />
+         </mappers>
+     
+     </configuration>
+     ```
+
+6. 测试
+
+   - ```Java
+     public class Test {
+         public static void main(String[] args) {
+             SqlSession sqlSession = MybatisUtils.getSqlSession();
+             TeacherMapper mapper = sqlSession.getMapper(TeacherMapper.class);
+             Teacher teacher = mapper.getTeacher(1);
+             System.out.println(teacher);
+     
+             sqlSession.close();
+         }
+     }
+     ```
+
+     
+
