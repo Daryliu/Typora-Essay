@@ -1087,18 +1087,18 @@ CREATE TABLE `teacher` (
     `id` INT(10) NOT NULL,
     `name` VARCHAR(30) DEFAULT NULL,
     PRIMARY KEY(`id`)
-)ENGINE=INNODB DRFAULT CHARSET=utf-8
+)ENGINE=INNODB DEFAULT CHARSET=utf-8
 
 INSERT INTO teacher(`id`,`name`) VALUES (1,'秦老师');
 
 CREATE TABLE `student` (
     `id` INT(10) NOT NULL,
     `name` VARCHAR(30) DEFAULT NULL,
-    `tid` VARCHAR(30) DEFAULT NULL,
+    `tid` INT(10) DEFAULT NULL,
     PRIMARY KEY(`id`),
     KEY `fktid` (`tid`),
     CONSTRAINT `fktid` FOREIGN KEY (`tid`) REFERENCES `teacher` (`id`)
-)ENGINE=INNODB DRFAULT CHARSET=utf-8
+)ENGINE=INNODB DEFAULT CHARSET=utf8
 
 INSERT INTO student(`id`,`name`,`tid`) VALUES (`1`,'秦老师',`1`);
 INSERT INTO student(`id`,`name`,`tid`) VALUES (`2`,'秦老师',`1`);
