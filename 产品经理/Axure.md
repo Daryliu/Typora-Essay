@@ -337,5 +337,21 @@
 
 ##### 7.10订单详情案例
 
-
+1. 制作步骤：
+   1. 先添加所有的元件，注意元件的命名;
+   2. 给”提交按钮”添加交互事件，鼠标单击时: 
+      1. 显示”订单详情”的组合内容;
+      2. 给订单详情中”姓名框"、"电话框"、 "地址框"赋值;
+      3. 注意，使用局部变量获取相应输入框的文字即可完成赋值
+      4. ![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E6%8F%90%E4%BA%A4%E6%8C%89%E9%92%AE.png)
+   3. 制作省市二级联动效果；
+      1. ![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E7%9C%81%E4%BB%BD%E4%B8%8B%E6%8B%89.png)
+   4. 添加全局变量，获取城市动态面板的值；
+      1. 页面刚打开时，显示的值；
+         1. ![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E9%A1%B5%E9%9D%A2%E8%BD%BD%E5%85%A5.png)
+      2. 当省市下拉框选项改变时，显示的值；
+      3. 当城市动态面板中，具体某一个省份的下拉框，选项改变时，显示的值；
+         1. ![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E6%B2%B3%E5%8D%97%E4%B8%8B%E6%8B%89.png)
+   5. 将添加好的全局变量，插入到地址框中即可。
+      1. ![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F.png)
 
