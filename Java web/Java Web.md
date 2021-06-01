@@ -10,7 +10,7 @@
 
 （作者暂定端口为8086）
 
-实际运行JSP和Servlet。（Java的跟加载机制实际是运行jdk中的rt.jar）
+实际运行JSP和Servlet。（Java的根加载机制实际是运行jdk中的rt.jar）
 
 ​	bin文件夹：启动、关闭的脚本文件
 
@@ -161,7 +161,7 @@ Location:		让网页重新定位
 <localRepository>D:\apache-maven-3.6.3\maven-repo</localRepository>
 ```
 
-配置镜像：
+配置国内阿里云镜像：
 
 ```xml
 <mirror>
@@ -283,8 +283,7 @@ Location:		让网页重新定位
 <!--  一个servlet一个对应的Mapping：映射-->
   <servlet-mapping>
     <servlet-name>helloServlet</servlet-name>
-    <!--映射请求路径   输入helloServlet后会通过servlet-name找到注册的servlet，然后找到servlet-class的路径执行-->
-    <url-pattern>/helloServlet</url-pattern>
+    <url-pattern>/helloServlet</url-pattern><!--映射请求路径   输入helloServlet后会通过servlet-name找到注册的servlet，然后找到servlet-class的路径执行-->
   </servlet-mapping>
 ```
 
@@ -374,7 +373,7 @@ resp.getWriter().print(username);
 ```java
 ServletContext context = this.getServletContext();
 String url = context.getInitParameter("url");//获取web.xml中的初始化信息
-resp.getWriter().print(url);
+resp.getWriter().print(url);//输出
 ```
 
 web.xml中的初始化信息是：
@@ -1158,7 +1157,7 @@ Controller
 
 ```
 例子：
-登录----->Controller接收用户的登录请求----->处理用户的请求（获取用户登录的参数，username，password）------>交给业务层Model处理登录业务（判断用户名密码是否正确：事务）---->Dao层查询用户名、密码是否正确----->数据库
+登录----->Controller接收用户的登录请求----->处理用户的请求（获取用户登录的参数，username，password）------>交给业务层Model处理登录业务（判断用户名密码是否正确：事务）---->Dao层查询用户名、密码是否正确----->数据库[dao层相当于切菜员,Model相当于厨师,controller相当于服务员]
 ```
 
 
