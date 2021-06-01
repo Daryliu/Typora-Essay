@@ -28,5 +28,66 @@
 - 类变量（`static int a = 0;`）、实例变量String str = "hhh";（从属于对象，用的话需要先new对象用；**有默认值**）、局部变量（必须声明和初始化）
 - **常量**：初始化之后不能改变，使用`final`来定义
 
-#### 运算符
+#### 方法
+
+> 注：println输出会换行、print输出不会
+>
+> **return除了返回结果，也可以“终止方法”**
+>
+> Java是**值传递**
+
+##### 方法重载
+
+- 方法名称相同
+- 参数列表必须不同（个数、类型、排列顺序）
+- 方法返回类型可以相同也可以不同
+- **仅返回值不同不足以构成重载**
+
+
+
+###### （了解）命令行传参：
+
+```java
+public static voiid main(String args[]) {
+    for(int i = 0;i < args.length; i ++) {
+        System.out.println(i + args[i]);
+    }
+}
+
+然后在命令行中或者找到文件所在位置的src，进行javac xxx.java编译---->java xxx运行
+```
+
+###### 可变参数
+
+**因为如果只是变量数量不同（不确定会传多少参数）而进行多次方法重载显得代码冗余。所以使用可变参数。**
+
+- 在方法声明中，在指定参数类型后加一个省略号
+
+- 一个方法中只能指定一个可变参数，它必须是方法的最后一个参数，任何普通参数必须在他之前声明
+
+- ```java
+  public static void printMax(double... numbers) {
+      if (numbers.length == 0) {
+          System.out.println("No argument passed");
+          return;
+      }
+      
+      double result = numbers[0];
+      
+      for(int i =0; i< numbers.length; i++) {
+          if(number[i] >result) {
+              result = numbers[i];
+          }
+      }
+      System.out.println("最大值为" + result);
+  }
+  
+  
+  调用时可以写成：printMax(new double[]{1,2,3})
+  ```
+
+##### 递归
+
+1. 递归头：什么时候不调用自身方法。如果没有头，将陷入死循环
+2. 递归体：什么时候需要调用自身方法
 
