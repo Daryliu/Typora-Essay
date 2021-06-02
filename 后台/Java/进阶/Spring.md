@@ -215,3 +215,319 @@ public class UserServiceImpl implements UserService{        //业务层要去调
 
 
 #### Spring配置说明
+
+###### 别名alias
+
+```xml
+<bean id="user" class="com.ldy.pojo.User">
+        <property name="name" value="ldy"/>
+    </bean>
+
+<alias name="uesr" alias="随意起别名" />			之后获取user或者起的名都可以
+```
+
+###### Bean的配置
+
+```xml
+<!--
+id:bean的唯一标识符,也就是我们学的对象名
+class:bean对象所对应的全限定名:包名+类型
+name:也是别名,比alias更高级,可以同时起多个别名,中间用空格,逗号,分号隔开
+-->
+<bean id="user" class="com.ldy.pojo.User" name="user1 user2,user3;user4">
+        <property name="name" value="ldy"/>
+    </bean>
+
+<alias name="uesr" alias="随意起别名" />
+```
+
+###### import
+
+一般用于团队开发,可以将多个配置文件导入为一个。（可能多个人都写了不同的xml配置，用import来合并）
+
+```xml
+<import resource="beans.xml" />
+<import resource="beans1.xml" />
+<import resource="beans2.xml" />	
+在applicationContext.xml中可以导入beans.xml的配置，随后获取的时候只获取applicationContext.xml即可
+```
+
+
+
+#### 依赖注入DI
+
+##### 构造器注入
+
+即有参构造
+
+```xml
+	<!--有参构造   下标赋值法-->
+    <!--<bean id="user" class="com.ldy.pojo.User">
+        <constructor-arg index="0" value="有参构造构建方法" />
+    </bean>-->
+
+    <!--有参构造   类型匹配法   基本类型可以直接用,引用类型必须要全写-->
+    <!--<bean id="user" class="com.ldy.pojo.User">
+        <constructor-arg type="java.lang.String" value="有参构造构建方法&#45;&#45;类型匹配" />
+    </bean>-->
+
+    <!--有参构造   -->
+    <!--<bean id="user" class="com.ldy.pojo.User">
+        <constructor-arg name="name" value="有参构造构建方法" />
+    </bean>-->
+```
+
+##### set方式注入
+
+- 依赖注入：set方法注入！
+  - 依赖：bean对象的创建依赖于Spring容器
+  - 注入：bean对象中的所有属性，由容器来注入
+
+【测试】
+
+1. 复杂类型
+
+   ```java
+   public class Address {
+       private String address;
+   
+       public String getAddress() {
+           return address;
+       }
+   
+       public void setAddress(String address) {
+           this.address = address;
+       }
+       
+   }
+   ```
+
+2. 真实测试对象
+
+   ```java
+   public class Student {
+   
+       private String name;            //常规类型
+       private Address address;        //引用
+       private String[] books;         //数组
+       private List<String> hobbys;    //List
+       private Map<String,String> card;    //Map
+       private Set<String> games;      //Set
+       private String wife;            //设置空指针
+       private Properties info;        //Properties
+   
+       public String getName() {
+           return name;
+       }
+   
+       public void setName(String name) {
+           this.name = name;
+       }
+   
+       public Address getAddress() {
+           return address;
+       }
+   
+       public void setAddress(Address address) {
+           this.address = address;
+       }
+   
+       public String[] getBooks() {
+           return books;
+       }
+   
+       public void setBooks(String[] books) {
+           this.books = books;
+       }
+   
+       public List<String> getHobbys() {
+           return hobbys;
+       }
+   
+       public void setHobbys(List<String> hobbys) {
+           this.hobbys = hobbys;
+       }
+   
+       public Map<String, String> getCard() {
+           return card;
+       }
+   
+       public void setCard(Map<String, String> card) {
+           this.card = card;
+       }
+   
+       public Set<String> getGames() {
+           return games;
+       }
+   
+       public void setGames(Set<String> games) {
+           this.games = games;
+       }
+   
+       public String getWife() {
+           return wife;
+       }
+   
+       public void setWife(String wife) {
+           this.wife = wife;
+       }
+   
+       public Properties getInfo() {
+           return info;
+       }
+   
+       public void setInfo(Properties info) {
+           this.info = info;
+       }
+   
+       @Override
+       public String toString() {
+           return "Student{" +
+                   "name='" + name + '\'' +
+                   ", address=" + address +
+                   ", books=" + Arrays.toString(books) +
+                   ", hobbys=" + hobbys +
+                   ", card=" + card +
+                   ", games=" + games +
+                   ", wife='" + wife + '\'' +
+                   ", info=" + info +
+                   '}';
+       }
+   }
+   ```
+
+3. applicationContext.xml
+
+   ```xml
+   <bean id="address" class="com.ldy.pojo.Address">
+           <property name="address" value="武汉" />
+       </bean>
+   
+       <bean id="student" class="com.ldy.pojo.Student">
+           <!--普通值/常规类型注入-->
+           <property name="name" value="刘德昱" />
+           <!--引用类型注入-->
+           <property name="address" ref="address" />
+           <!--数组-->
+           <property name="books">
+               <array>
+                   <value>红楼梦</value>
+                   <value>三国演义</value>
+               </array>
+           </property>
+           <!--List类型注入-->
+           <property name="hobbys">
+               <list>
+                   <value>听歌</value>
+                   <value>打篮球</value>
+               </list>
+           </property>
+           <!--map类型注入-->
+           <property name="card">
+               <map>
+                   <entry key="身份证" value="12121215121212" />
+                   <entry key="银行卡" value="1212121512121215156" />
+               </map>
+           </property>
+           <!--set类型注入-->
+           <property name="games">
+               <set>
+                   <value>LOL</value>
+                   <value>魔兽世界</value>
+               </set>
+           </property>
+           <!--空指针类型注入-->
+           <property name="wife">
+               <null/>
+           </property>
+           <!--Properties类型注入-->
+           <property name="info">
+               <props>
+                   <prop key="driver">1201920637</prop>
+                   <prop key="url">xxxxxx.com</prop>
+                   <prop key="username">sdsdfaf</prop>
+                   <prop key="password">45454</prop>
+               </props>
+           </property>
+       </bean>
+   ```
+
+4. 测试类
+
+   ```java
+   public class testcode {
+   
+       public static void main(String[] args) {
+           //拿到上下文
+           ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+           //拿到上下文中的student
+           Student student = (Student) context.getBean("student");
+           System.out.println(student.toString());
+   
+           /*打印输出
+           Student{
+           name='刘德昱',
+           address=Address{address='武汉'},
+           books=[红楼梦, 三国演义],
+           hobbys=[听歌, 打篮球],
+           card={
+               身份证=12121215121212,
+               银行卡=1212121512121215156},
+           games=[LOL, 魔兽世界],
+           wife='null',
+           info={
+               password=45454,
+               driver=1201920637,
+               url=xxxxxx.com,
+               username=sdsdfaf}}
+           */
+       }
+   }
+   ```
+
+   
+
+##### 拓展方式注入
+
+- p命名空间的xml快捷方式
+
+> 对应的是set注入,用于"set注入"
+>
+> xmlns:p="http://www.springframework.org/schema/p"   添加此行依赖配置
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"	
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--可以直接使用   p:属性   来直接注入值-->
+    <bean name="user" class="com.ldy.pojo.User" p:name="刘德昱" p:age=18 />
+
+
+</beans>
+```
+
+- c命名空间的xml快捷方式
+
+> 对应的是构造器注入,用于""有参构造"注入"
+>
+> xmlns:c="http://www.springframework.org/schema/c"  添加此行依赖配置
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="user2" class="com.ldy.pojo.User" c:name="刘德昱2" c:age=188 />
+
+
+</beans>
+```
+
+
+
+#### Bean的作用域
