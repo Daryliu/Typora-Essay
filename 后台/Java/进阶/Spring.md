@@ -530,4 +530,27 @@ name:也是别名,比alias更高级,可以同时起多个别名,中间用空格,
 
 
 
-#### Bean的作用域
+#### bean的作用域
+
+> singleton 单例(全局只有1个对象)				prototype 原型(每一个bean创建一个其对应的对象)
+>
+> request				session
+>
+> application			websocket 
+
+```xml
+<bean id="user2" class="com.ldy.pojo.User" scope="singleton" />  默认是单例模式(所有的bean创建为一个对象)
+
+<bean id="user2" class="com.ldy.pojo.User" scope="prototype" />		原型模式(每一个bean创建一个其对应的对象)
+
+
+以下四种只能在web开发中使用
+<bean id="user2" class="com.ldy.pojo.User" scope="request" />
+
+<bean id="user2" class="com.ldy.pojo.User" scope="session" />
+
+<bean id="user2" class="com.ldy.pojo.User" scope="application" />
+
+<bean id="user2" class="com.ldy.pojo.User" scope="websocket" />
+```
+
