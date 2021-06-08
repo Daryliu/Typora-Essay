@@ -214,7 +214,7 @@ public class UserServiceImpl implements UserService{        //业务层要去调
 
 
 
-#### Spring配置说明
+#### Spring中bean配置说明
 
 ###### 别名alias
 
@@ -545,12 +545,445 @@ name:也是别名,比alias更高级,可以同时起多个别名,中间用空格,
 
 
 以下四种只能在web开发中使用
-<bean id="user2" class="com.ldy.pojo.User" scope="request" />
 
-<bean id="user2" class="com.ldy.pojo.User" scope="session" />
+
+<bean id="user2" class="com.ldy.pojo.User" scope="request" />request：每一次 HTTP 请求都会产生一个新的实例，并且该 bean 仅在当前 HTTP 请求内有效。
+
+<bean id="user2" class="com.ldy.pojo.User" scope="session" />Session - 每一次 HTTP 请求都会产生一个新的 bean，同时该 bean 仅在当前 HTTP session 内有效。
 
 <bean id="user2" class="com.ldy.pojo.User" scope="application" />
 
 <bean id="user2" class="com.ldy.pojo.User" scope="websocket" />
+```
+
+#### bean的自动装配
+
+- 自动装配式满足bean依赖的一种方式
+- Spring会在上下文中自动寻找,并自动给bean装配属性
+
+
+
+在Spring中的三种装配方式
+
+1. 在xml中显示的配置(如上)
+2. 在Java中显示配置
+3. 隐式的自动装配bean     ⭐
+   1. 组件扫描(component scanning)：spring会自动发现应用上下文中所创建的bean；
+   2. 自动装配(autowiring)：spring自动满足bean之间的依赖，也就是我们说的IoC/DI；
+
+```java
+public class Cat {
+    public void shout() {
+        System.out.println("miao~");
+    }
+}
+```
+
+```java
+public class Dog {
+    public void shout() {
+        System.out.println("wang~");
+    }
+}
+```
+
+```java
+public class People {
+    @Autowired(required = false)    //@Autowired(required=false)  说明：false，对象可以为null；true，对象必须存对象，不能为null。
+    private Dog dog;
+    @Autowired(required = false)
+    private Cat cat;
+    private String name;
+
+    public Dog getDog() {
+        return dog;
+    }
+
+    public void setDog(Dog dog) {
+        this.dog = dog;
+    }
+
+    public Cat getCat() {
+        return cat;
+    }
+
+    public void setCat(Cat cat) {
+        this.cat = cat;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "People{" +
+                "dog=" + dog +
+                ", cat=" + cat +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+编写Spring配置文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+    <bean id="dog" class="com.kuang.pojo.Dog"/>
+    <bean id="cat" class="com.kuang.pojo.Cat"/>
+    <bean id="user" class="com.kuang.pojo.User">
+        <property name="cat" ref="cat"/>
+        <property name="dog" ref="dog"/>
+        <property name="str" value="qinjiang"/>
+    </bean>
+</beans>
+```
+
+测试
+
+```java
+public class MyTest {
+    @Test
+    public void testMethodAutowire() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        User user = (User) context.getBean("user");
+        user.getCat().shout();
+        user.getDog().shout();
+    }
+}
+```
+
+##### autowire byName (按名称自动装配)
+
+```xml
+<bean id="dog" class="com.kuang.pojo.Dog"/>
+<bean id="cat" class="com.kuang.pojo.Cat"/>
+<bean id="user" class="com.kuang.pojo.User" autowire="byName">
+    <property name="str" value="qinjiang"/>
+</bean>
+```
+
+当一个bean节点带有 autowire byName的属性时。
+
+1. 将查找其类中(people类)所有的set方法名，例如setCat，获得将set去掉并且首字母小写的字符串，即cat。
+2. 去spring容器中寻找是否有此字符串名称id的对象。
+3. 如果有，就取出注入；如果没有，就报空指针异常。这里id="cat"若改为"catXXX"则找不到报空指针
+
+
+
+##### autowire byType (按类型自动装配)
+
+使用autowire byType首先需要保证：**<u>同一类型的对象，在spring容器中唯一</u>**。如果不唯一，会报不唯一的异常。
+
+```xml
+<bean id="dog" class="com.kuang.pojo.Dog"/>
+<bean id="cat" class="com.kuang.pojo.Cat"/>
+<bean id="user" class="com.kuang.pojo.User" autowire="byType">
+    <property name="str" value="qinjiang"/>
+</bean>
+```
+
+注:若加一行`<bean id="cat2" class="com.kuang.pojo.Cat"/>`则对象不唯一；**但是若将cat的bean名称改掉！测试！因为是按类型装配，所以并不会报异常，也不影响最后的结果。甚至将id属性去掉，也不影响结果**。
+
+
+
+##### 注解
+
+##### @Autowired
+
+> @Autowired先byType，默认情况下必须要求依赖**对象**必须存在
+
+1、在spring配置文件中引入context文件头
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"	1.在spring配置文件中引入context文件头
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context	1.在spring配置文件中引入context文件头
+        http://www.springframework.org/schema/context/spring-context.xsd"	1.在spring配置文件中引入context文件头>
+    
+    <!--2.开启属性注解支持！-->
+    <context:annotation-config/>
+
+    <bean id="dog" class="com.lsy.dao.Dog"  />
+
+    <bean id="cat" class="com.lsy.dao.Cat" />
+
+    <bean id="people" class="com.lsy.dao.People">
+ 
+</beans>
+```
+
+2、将User类中的set方法去掉，使用@Autowired注解
+
+```java
+public class People {
+    //@Autowired(required = false)    //@Autowired(required=false)  说明：false，对象可以为null；true，对象必须存对象，不能为null。
+    @Autowired
+    private Dog dog;
+    @Autowired
+    private Cat cat;
+    private String name;
+
+    public Dog getDog() {
+        return dog;
+    }
+
+//    public void setDog(Dog dog) {
+//        this.dog = dog;
+//    }
+
+    public Cat getCat() {
+        return cat;
+    }
+
+//    public void setCat(Cat cat) {
+//        this.cat = cat;
+//    }
+
+    public String getName() {
+        return name;
+    }
+
+    //public void setName(String name) {
+    //    this.name = name;
+    //}
+
+    @Override
+    public String toString() {
+        return "People{" +
+                "dog=" + dog +
+                ", cat=" + cat +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+> 补充：
+>
+> @Autowired(required=false)  说明：false，对象可以为null；true，对象必须存对象，不能为null。
+>
+> @Qualifier
+>
+> - @Autowired是根据类型自动装配的，加上@Qualifier则可以根据byName的方式自动装配
+> - @Qualifier不能单独使用。
+
+##### 测试@Qualifier
+
+```xml
+<context:annotation-config/>
+<!--配置文件修改内容，保证类型存在对象。且名字不为类的默认名字！-->
+    <bean id="dog1" class="com.lsy.dao.Dog"  />
+    <bean id="dog2" class="com.lsy.dao.Dog"  />
+    <bean id="cat1" class="com.lsy.dao.Cat" />
+    <bean id="cat2" class="com.lsy.dao.Cat" />
+
+    <bean id="people" class="com.lsy.dao.People"/>
+```
+
+
+
+```java
+	@Autowired
+	//没有加Qualifier测试，直接报错
+	//在属性上添加Qualifier注解
+    @Qualifier(value = "dog2")
+    private Dog dog;
+    @Autowired
+    @Qualifier(value = "cat2")
+    private Cat cat;
+    private String name;
+```
+
+> @Resource
+>
+> - @Resource如有指定的name属性，先按该属性进行byName方式查找装配；
+> - 其次再进行默认的byName方式进行装配；
+> - 如果以上都不成功，则按byType的方式自动装配。
+> - 都不成功，则报异常。
+
+##### 测试@Resource
+
+```xml
+<bean id="dog" class="com.kuang.pojo.Dog"/>
+<bean id="cat1" class="com.kuang.pojo.Cat"/>
+<bean id="cat2" class="com.kuang.pojo.Cat"/>
+<bean id="user" class="com.kuang.pojo.User"/>
+```
+
+```java
+public class User {
+    //如果允许对象为null，设置required = false,默认为true
+    @Resource(name = "cat2")
+    private Cat cat;
+    @Resource
+    private Dog dog;
+    private String str;
+}
+```
+
+#### 现实注解开发
+
+在Spring4之后,使用注解必须要导入aop的包。
+
+##### bean的实现
+
+##### 属性注入
+
+```xml
+<context:component-scan base-package="com.ldy.pojo" />
+
+    <context:annotation-config/>
+```
+
+
+
+```java
+//等价于<bean id="user">
+@Component
+public class User {
+//    public String name = "ldy";
+
+    //相当于<property name="name" value="lllllddddd">
+    //@Value("lllllldddd")
+    public String name;
+
+
+    //也可以注入在set方法上
+    @Value("lllllldddd")
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+##### 衍生注解
+
+> **@Compoent、@Repository、@Service、@Controller只是对应pojo、dao、service、controller各层，用法作用都是一样的。**是将某个类注册到Spring中，装配bean
+
+@Compoent有几个衍生注解，我们在web开发中，会按照mvc三层架构分层!
+
+- dao【@Repository】
+
+  ```java
+  @Repository
+  public class UserDao {
+  }
+  ```
+
+- service【@Service】
+
+  ```java
+  @Service
+  public class UserService {
+  }
+  ```
+
+- controller【@Controller】
+
+  ```java
+  @Controller
+  public class UserController {
+  }
+  ```
+
+  这时需要将bean中的配置改为`<context:component-scan base-package="com.ldy" />`
+
+##### 自动装配注解
+
+@Autowired：自动装配通过类型
+
+​	如果Autowired不能唯一自动装配上属性，需要通过@Qualifier(value="xxx")
+
+@Nullable：字段标记了这个注解，说明这个字段可以为null
+
+@Resource：自动装配通过名字
+
+##### 作用域
+
+@Scope("singleton")等可以控制为单例、protoType
+
+```java
+@Component
+@Scope("singleton")
+public class User {
+//    public String name = "ldy";
+
+    //相当于<property name="name" value="lllllddddd">
+    //@Value("lllllldddd")
+    public String name;
+
+
+    //也可以注入在set方法上
+    @Value("lllllldddd")
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+##### 小结
+
+xml与注解
+
+- xml更万能，适用于任何场合，维护上简单方便
+- 注解不是自己的类使用不了，维护相对复杂
+
+xml与注解最佳实践：
+
+- xml用来管理bean
+
+- 注解 只负责完成属性的注入（即value值的注入）
+
+- 使用过程中组要注意：必须要让注解生效，开启注解的支持
+
+  ```java
+  <!--指定要扫描的包，这个包下的注解就会生效-->
+  <context:component-scan base-package="com.ldy" />
+  <context:annotation-config/>
+  ```
+
+
+
+#### 使用Java的方式配置Spring
+
+现在完全不使用xml配置了，全交给Java来做！
+
+
+
+
+
+#### 报错解决
+
+1. `Caused by: java.lang.IllegalArgumentException: Unsupported class file major version 59`
+
+```java
+解决方法：
+jdk13暂时不被支持,降级至jdk11,可正常运行
+
+降级方法(IDEA)
+File->Settings->Build,Execution,Deployment->Compiler->Java Compiler->project bytecode version 选择11
+
+File->Project Structure->Project->
+
+Porject Sdk 选择11
+
+Porject language level 选择11
+
+File->Project Structure->Modules->language level 选择11
 ```
 
