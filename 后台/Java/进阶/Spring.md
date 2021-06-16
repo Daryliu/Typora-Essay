@@ -32,7 +32,7 @@
 
 
 
-#### IOC控制反转
+### 1、IOC控制反转
 
 之前的接口流程
 
@@ -962,6 +962,179 @@ xml与注解最佳实践：
 #### 使用Java的方式配置Spring
 
 现在完全不使用xml配置了，全交给Java来做！
+
+```Java
+//说明这个类被Spring接管，注册到容器中
+@Component
+public class User {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    @Value("刘德昱")   //属性注入值
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+配置类
+
+```Java
+//配置文件
+//@Configuration代表这是一个配置类，就和之前看的beaans.xml是一样的
+@Configuration      //其也会被Spring容器托管，注册到容器中，因为其本身也是一个@Component
+@ComponentScan("com.ldy.pojo")	//可以加很多这样的配置
+@Import(config2.class)		//引入不同的配置来实现整体配置加载
+public class ldyConfig {
+    //等价于xml中写的一个bean标签；
+    //方法的getUser名字就相当于bean标签中的id属性
+    //返回值相当于bean标签中的class属性
+    @Bean
+    public User getUser() {
+        return new User();//返回要注入到的bean对象
+    }
+
+}
+```
+
+测试类
+
+```Java
+public class MyTest {
+    public static void main(String[] args) {
+       	//如果完全使用了配置类方式去做，就只能使用 AnnotationConfigApplicationContext上下文获取容器，通过配置类的class对象加载
+        ApplicationContext context = new AnnotationConfigApplicationContext(ldyConfig.class);
+        User getUser = (User) context.getBean("getUser");//取方法名
+        System.out.println(getUser.getName());
+    }
+}
+```
+
+**这种纯Java的配置方式，在SpringBoot中随处可见！**
+
+
+
+### 2、AOP面向切面编程
+
+#### 代理模式
+
+是Spring AOP的底层；
+
+- 静态代理
+- 动态代理
+
+![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F.png)
+
+##### 静态代理
+
+角色分析：
+
+- 抽象角色：一般会使用接口或者抽象类来解决 （如上图的“租房”）
+
+  ```Java
+  //租房
+  public interface Rent {
+      void rent();
+  }
+  ```
+
+- 真实角色：被代理的角色（房东）
+
+  ```Java
+  //房东
+  public class Host implements Rent{
+  
+      @Override
+      public void rent() {
+          System.out.println("房东要出租房子");//房东是只租房子。其他多余的事情都不做，都是中介做
+      }
+  }
+  
+  ```
+
+- 代理角色：代理真实角色，代理后会做一些附属操作！（中介）
+
+  ```java
+  //中介代理
+  public class rentProxy implements Rent{
+  
+      private Host host;
+  
+      public rentProxy(){
+  
+      }
+  
+      public rentProxy(Host host) {
+          this.host = host;
+      }
+  
+      @Override
+      public void rent() {
+          seeHouse();
+          host.rent();    //帮房东租房子
+          hetong();
+          fare();
+      }
+  
+  
+      //看房
+      public void seeHouse() {
+          System.out.println("中介带你看房");
+      }
+  
+      //收中介费
+      public void fare() {
+          System.out.println("收中介费");
+      }
+  
+      //签合同
+      public void hetong() {
+          System.out.println("签租赁合同");
+      }
+  
+  }
+  ```
+
+- 客户：访问代理对象的人（租房者）
+
+  ```java
+  //客户
+  public class Client {
+      public static void main(String[] args) {
+  
+          Host host = new Host();//之前是直接找房东租房子
+          //代理---客户找代理租房子，代理需要拿到房东的房子出租权（而且中介会有附加的操作）
+          rentProxy proxy = new rentProxy(host);
+          proxy.rent();
+  
+      }
+  }
+  ```
+
+  
+
+代理模式的优缺点
+
+- 可以使真实角色的操作更加纯粹；
+- 公共业务就交给代理角色，实现了 业务的分工
+- 公共业务发生扩展的时候，方便集中管理
+- 一个真实角色就会产生一个代理角色，代码量会翻倍，开发效率会降低
+
+
+
+
+
+
 
 
 
