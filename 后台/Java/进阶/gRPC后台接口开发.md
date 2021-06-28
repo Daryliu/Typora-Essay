@@ -347,3 +347,9 @@
    
 
 4. 在代码编写过程中继承proto文件中编译好的接口时，若发现找不到，要将target/generated-sources/protobuf 路径下grpc-java和Java文件夹设置为Generated sorces Root。
+
+
+
+> 附：
+>
+> 1. 由于各种限制，我们可能无法在单个请求中发送大文件。因此，我们需要将它们作为小块异步发送。在这种情况下，我们最终会一次又一次地发送上述请求类型。这将使我们一次又一次地发送不需要的元数据。这就是 protobuf [oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)可以提供帮助的地方。
