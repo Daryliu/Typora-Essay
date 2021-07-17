@@ -2,6 +2,14 @@
 
 ---
 
+一笔好字不错，二等才情不露，三斤酒量不醉，四季衣服不当，五子围棋
+
+不悔，六出昆曲不推，七字歪诗不迟，八张马吊不查，九品头衔不选，
+
+十分和气不俗。
+
+
+
 中文网站:https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/overview.html#overview-spring
 
 > 控制反转(IOC)、面向切面编程（AOP）
@@ -50,7 +58,7 @@ public class UserServiceImpl implements UserService{        //业务层要去调
     //private UserDao userDao = new UserDaoImpl();   //1、若有多个dao则需要程序员切换不同的daoImpl，不合理
 
     private UserDao userDao;
-    //2、利用set动态实现值的注入
+    //2、利用set动态实现值的注入，想切换不同的值直接在spring中修改然后set进去即可，不用动代码
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
     }
@@ -69,7 +77,7 @@ public class UserServiceImpl implements UserService{        //业务层要去调
 
 **依赖注入**:就是利用set方法来进行注入的.
 
-**IOC是一种编程思想，由主动的编程变成被动的接收.**
+**IOC是一种编程思想，由主动的编程变成被动的接收。**
 
 
 
@@ -569,7 +577,7 @@ name:也是别名,比alias更高级,可以同时起多个别名,中间用空格,
 2. 在Java中显示配置
 3. 隐式的自动装配bean     ⭐
    1. 组件扫描(component scanning)：spring会自动发现应用上下文中所创建的bean；
-   2. 自动装配(autowiring)：spring自动满足bean之间的依赖，也就是我们说的IoC/DI；
+   2. 自动装配(autowiring)：spring自动满足bean之间的依赖，也就是我们说的IOC/DI；
 
 ```java
 public class Cat {
@@ -712,7 +720,7 @@ public class MyTest {
        xmlns:context="http://www.springframework.org/schema/context"	1.在spring配置文件中引入context文件头
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context	1.在spring配置文件中引入context文件头
+        http://www.springframework.org/schema/context		1.在spring配置文件中引入context文件头
         http://www.springframework.org/schema/context/spring-context.xsd"	1.在spring配置文件中引入context文件头>
     
     <!--2.开启属性注解支持！-->
@@ -809,7 +817,7 @@ public class People {
     private String name;
 ```
 
-> @Resource
+> @Resource（可以单独使用，不用结合@Autowired使用）
 >
 > - @Resource如有指定的name属性，先按该属性进行byName方式查找装配；
 > - 其次再进行默认的byName方式进行装配；
@@ -859,7 +867,7 @@ public class User {
 //    public String name = "ldy";
 
     //相当于<property name="name" value="lllllddddd">
-    //@Value("lllllldddd")
+    @Value("lllllldddd")
     public String name;
 
 
@@ -991,7 +999,7 @@ public class User {
 
 ```Java
 //配置文件
-//@Configuration代表这是一个配置类，就和之前看的beaans.xml是一样的
+//@Configuration代表这是一个配置类，就和之前看的beans.xml是一样的
 @Configuration      //其也会被Spring容器托管，注册到容器中，因为其本身也是一个@Component
 @ComponentScan("com.ldy.pojo")	//可以加很多这样的配置
 @Import(config2.class)		//引入不同的配置来实现整体配置加载
@@ -1132,7 +1140,7 @@ public class MyTest {
 
 
 
-
+#### AOP
 
 
 
