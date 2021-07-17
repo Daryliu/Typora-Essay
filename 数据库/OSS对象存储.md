@@ -10,9 +10,20 @@
 ### 对象
 
 - OSS存储数据的基本单元；
+
 - 没有文件目录层级结构的关系；
+
 - <font color = "bluegreen">由（描述）元信息（Object Meta），用户数据（Data）和文件名（Key=ObjectKey）组成；（key用于标识；meta是键值对,表示了对象的一些属性，比如最后修改时间、大小等信息，同时用户也可以在元信息中存储一些自定义的信息）</font>
+
   - ObjectKey表示上传的Object所在存储空间的完整名称，即包含文件后缀在内的完整路径，如填写为abc/efg/123.jpg。
+
+  - Object包含以下三种类型：
+
+    - 通过[简单上传](https://help.aliyun.com/document_detail/31848.htm#concept-bws-3bb-5db)生成的Object类型为Normal。
+    - 通过[分片上传](https://help.aliyun.com/document_detail/31850.htm#concept-wzs-2gb-5db)生成的Object类型为Multipart。
+    - 通过[追加上传](https://help.aliyun.com/document_detail/31851.htm#concept-ls5-yhb-5db)生成的Object类型为Appendable，且仅支持在Appendable类型的Object后直接追加内容。
+
+    ## Object信息
 
 ### Region（地域）
 
@@ -74,3 +85,4 @@ OSS使用基于纠删码、多副本的数据冗余存储机制，将每个对�
 | Data                      | 文件数据                                       |
 | Key                       | 文件名                                         |
 | ACL (Access Control List) | 存储空间或者文件的权限                         |
+
