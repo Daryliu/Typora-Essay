@@ -176,7 +176,17 @@ select * from tablename limit 0,2
 
 ---
 
-#### <font color="yellow">Statement和PreparedStatement</font>
+#### <font color="yellowgreen">Statement和PreparedStatement</font>
+
+区别：
+
+PreparedStatement有预编译的过程，已经绑定sql，之后无论执行多少遍，都不会再去进行编译，
+
+而 statement 不同，如果执行多变，则相应的就要编译多少遍sql，所以从这点看，preStatement 的效率会比 Statement要高一些.
+
+preStatement是预编译的，所以可以有效的防止 SQL注入等问题
+
+
 
 和 Statement一样，PreparedStatement也是用来**执行sql语句**的；需要根据sql语句创建PreparedStatement
 除此之外，还能够通过设置参数，指定相应的值，而不是Statement那样使用字符串拼接
@@ -624,5 +634,77 @@ public class ConnectionPool {
     }
   
 }
+```
+
+#### PreparedStatement详解
+
+```Java
+private static void preparedStatement() {
+        // 总结一下JDBC的最基本的使用过程
+        // 1、加载驱动类：Class.forName()
+        // 2、获取数据库连接：DriverManager.getConnection()
+        // 3、创建SQL语句执行句柄：Connection.createStatement()
+        // 4、执行SQL语句：Statement.executeUpdate()
+        // 5、释放数据库连接资源：finally，Connection.close()
+
+        // 定义数据库连接对象
+        // 引用JDBC相关的所有接口或者是抽象类的时候，必须是引用java.sql包下的
+        // java.sql包下的，才代表了java提供的JDBC接口，只是一套规范
+        // 至于具体的实现，则由数据库驱动来提供，切记不要引用诸如com.mysql.jdbc包的类
+        Connection conn=null;
+    
+        //定义SQL语句执行句柄:PrepareStatement对象
+        //PreparedStatement对象,其实就是底层会基于Connection数据库连接
+        //可以让我们方便的针对数据库中的表,执行增删改查的SQL语句
+        //比如和insert update delete和select语句
+        PreparedStatement ps=null;
+        try {
+            // 第一步，加载数据库的驱动，我们都是面向java.sql包下的接口在编程，所以
+            // 要想让JDBC代码能够真正操作数据库，那么就必须第一步先加载进来你要操作的数据库的驱动类
+            // 使用Class.forName()方式来加载数据库的驱动类
+            // Class.forName()是Java提供的一种基于反射的方式，直接根据类的全限定名（包+类）
+            // 从类所在的磁盘文件（.class文件）中加载类对应的内容，并创建对应的Class对象
+            Class.forName("com.mysql.jdbc.Driver");
+            // 获取数据库的连接
+            // 使用DriverManager.getConnection()方法获取针对数据库的连接
+            // 需要给方法传入三个参数，包括url、user、password
+            // 其中url就是有特定格式的数据库连接串，包括“主协议:子协议://主机名:端口号//数据库”
+            conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/spark_project?characterEncoding=utf8",
+                    "root",
+                    "root"
+            );
+            // 基于数据库连接Connection对象，创建SQL语句执行句柄，Statement对象
+            // prepareStatement对象，就是用来基于底层的Connection代表的数据库连接
+            // 允许我们通过java程序，通过prepareStatement对象，向MySQL数据库发送SQL语句
+            // 从而实现通过发送的SQL语句来执行增删改查等逻辑
+            // 第一个，SQL语句中，值所在的地方，都用问好代表
+            String sql = "insert into user(name,age) values(?,?)";
+            ps = conn.prepareStatement(sql);
+            // 第二个，必须调用PreparedStatement的setX()系列方法，对指定的占位符设置实际的值
+            ps.setString(1,"李四");
+            ps.setInt(2,26);
+            // Statement.executeUpdate()方法，就可以用来执行insert、update、delete语句
+            // 返回类型是个int值，也就是SQL语句影响的行数
+            // 第三个，执行SQL语句时，直接使用executeUpdate()即可，不用传入任何参数
+            int rtn = ps.executeUpdate();
+
+            System.out.println("SQL语句影响了【" + rtn + "】行。");
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                // 最后一定要记得在finally代码块中，尽快在执行完SQL语句之后，就释放数据库连接
+                if (ps != null){
+                    ps.close();
+                }
+                if (conn !=null){
+                    conn.close();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
 ```
 
