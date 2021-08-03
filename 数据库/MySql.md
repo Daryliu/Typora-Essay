@@ -395,3 +395,17 @@ public class JDBCUtils {
 3. 服务器端进行 SQL 解析、预处理，生成合法的解析树；
 4. 再由优化器生成对应的执行计划；
 5. MySQL 根据优化器生成的执行计划，调用相应的存储引擎的 API 来执行，并将执行结果返回给客户端。
+
+
+
+
+
+---
+
+#### MySQL连接问题
+
+1. 解决问题：The server time zone value ‘�й���׼ʱ��’ is unrecognized or represents more than one time zone. You must configure either the server or JDBC driver (via the serverTimezone configuration property) to use a more specifc time zone value if you want to utilize time zone support.
+
+   **解决方式**：定位到MySQL Server 8.0的设置目录下：C:\ProgramData\MySQL\MySQL Server 8.0，打开my.ini文件，在[mysqld]节点下，加入default-time-zone='+8:00'默认时区设置，如下截图：
+
+   ![img](https://img-blog.csdn.net/2018072614352773?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlbjIyMDQ=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
