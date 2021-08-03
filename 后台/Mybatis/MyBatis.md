@@ -112,10 +112,10 @@ MyBatis 是一款优秀的**持久层框架**
    </configuration>
    ```
 
-   - 编写一个工具类，从xml中构建SqlSessionFactory；（sqlSessionFactory用于创建sqLSession，而sqLSession相当于JDBC中的statement，执行sql操作用）
+   - 编写一个工具类，从xml中构建SqlSessionFactory**（他的能力就是打开一个SqlSession会话，而且重载了许多不同的参数，你可以改变这些参数自定义会话过程中的一些默认行为）**；（sqlSessionFactory用于创建sqlSession，而sqlSession**（是sql中的会话）**相当于JDBC中的statement，执行sql操作用）**SqlSession表示的是数据库客户端和数据库服务端之间的一种会话，并维护了两者之间的状态信息；SqlSession是一个接口，里面有我们熟悉的操作数据库执行sql语句的select、insert、update等方法**
 
    ```Java
-   //sqlSessionFactory用于创建sqLSession，而sqLSession相当于JDBC中的statement，执行sql操作用
+   //sqlSessionFactory用于创建sqLSession，而sqLSession相当于JDBC中的statement，执行sql操作用（是sql中的会话）
    private static SqlSessionFactory SqlSessionFactory;
    
        static {//设置为静态代码块，进来就执行
