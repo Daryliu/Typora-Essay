@@ -380,7 +380,15 @@ public class JDBCUtils {
 }
 ```
 
+##### execute、executeQuery和executeUpdate之间的区别
 
+1. executeQuery
+   - 用于产生单个结果集的语句；用来执行 SELECT（**查**） 语句
+2. executeUpdate
+   - 用于执行 INSERT（**增**）、UPDATE（**改**） 或 DELETE（**删**） 语句以及 SQL DDL（创建删除）（数据定义语言）语句，例如 CREATE TABLE 和 DROP TABLE
+   - <u>返回值是一个整数</u>；表示修改了表中多少行多少列
+3. execute
+   - 用于执行返回多个结果集、多个更新计数或二者组合的语句；
 
 ##### [MySql完全卸载](https://how2j.cn/k/mysql/mysql-uninstall/1322.html)
 
