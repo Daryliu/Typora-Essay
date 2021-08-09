@@ -353,3 +353,11 @@
 > 附：
 >
 > 1. 由于各种限制，我们可能无法在单个请求中发送大文件。因此，我们需要将它们作为小块异步发送。在这种情况下，我们最终会一次又一次地发送上述请求类型。这将使我们一次又一次地发送不需要的元数据。这就是 protobuf [oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)可以提供帮助的地方。
+
+
+
+##### grpc测试问题
+
+1. Error: 13 INTERNAL: Received RST_STREAM with error code 2
+
+   可能出现的原因是输出多条数据，但是用的是simple rpc，改为返回结果为  stream就可以了
