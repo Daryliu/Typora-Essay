@@ -354,7 +354,11 @@
 >
 > 1. 由于各种限制，我们可能无法在单个请求中发送大文件。因此，我们需要将它们作为小块异步发送。在这种情况下，我们最终会一次又一次地发送上述请求类型。这将使我们一次又一次地发送不需要的元数据。这就是 protobuf [oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)可以提供帮助的地方。
 
+##### proto文件定义
 
+- repeated：前置repeated关键词，声明该字段为**数组**类型。
+
+- proto3不支持proto2中的required和optional关键字。
 
 ##### grpc测试问题
 
