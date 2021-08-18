@@ -11,10 +11,12 @@ curl www.baidu.com
 相当于向www.baidu.com发出 GET 请求，服务器返回的内容会在命令行输出。
 ```
 
--X：-X参数指定 HTTP 请求的方法。
+-X：-X参数指定 HTTP 请求的方法。**（-X后的的GET\POST\PUT\DELETE需要大写）**
 
 ```shell
 curl -X POST www.baidu.com
+删除upstreams中id为8dc98dfc-3c14-4b2e-ab93-164eb35d4a3a对应的targets 中id为30c1fb0c-4516-436e-b430-3f1ff543adda的ip，-v是查看详细信息
+curl -X DELETE http://10.101.140.3:8000/upstreams/8dc98dfc-3c14-4b2e-ab93-164eb35d4a3a/targets/30c1fb0c-4516-436e-b430-3f1ff543adda -v
 ```
 
 -H
