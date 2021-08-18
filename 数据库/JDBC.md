@@ -85,7 +85,7 @@ public static void main(String[] args) {
     }
 ```
 
-##### <font color="yellow">增、删、改</font>
+##### <font color="yellowgreen">增、删、改</font>
 
 ```java
 public static void main(String[] args) {
@@ -248,7 +248,7 @@ public static void main(String[] args) {
 
 ---
 
-#### <font color="yellow">Exrcute与ExrcuteUpdate的区别</font>
+#### <font color="greenblue">Exrcute与ExrcuteUpdate的区别</font>
 
 相同点：都可以执行增加，删除，修改
 
@@ -305,7 +305,7 @@ public static void main(String[] args) {
 
 ***
 
-#### <font color="yellow">获取自增长ID以及表的元数据</font>
+#### <font color="blue">获取自增长ID以及表的元数据</font>
 
 JDBC通过**getGeneratedKeys**获取该id
 
@@ -374,7 +374,7 @@ public static void main(String[] args) {
 
 ***
 
-#### <font color="yellow">jdbc中的事务</font>
+#### <font color="blue">jdbc中的事务</font>
 
 1>在事务中的多个操作，**要么都成功，要么都失败**
 2>通过 c.setAutoCommit(false);**关闭自动提交**
@@ -386,7 +386,7 @@ public static void main(String[] args) {
 
 ##### <font color="green">基于JDBC设计DAO实例</font>
 
-DAO：（数据访问对象）<font color="greenyellow"><u>把数据库相关的操作都封装在这个类里面，其他地方看不到JDBC的代码</u></font>
+DAO：（数据访问对象）<font color="blueyellow"><u>把数据库相关的操作都封装在这个类里面，其他地方看不到JDBC的代码</u></font>
 
 ###### DAO接口
 
