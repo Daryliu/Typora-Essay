@@ -142,6 +142,12 @@ public static void main(String[] args) {
             // 执行查询语句，并把结果集返回给ResultSet
             ResultSet rs = s.executeQuery(sql);
             while (rs.next()) {		//判断查询到之后用下面定义的值获取查询到的值**************************
+                // rs.getInt(1)这个结果集的第一行第一列里拿值
+                // 如果现有表User：列有id,name
+                // 那么rs.getInt(1)//等价于rs.getInt("id");
+                // rs.getString(2)//等价于rs.getInt("name");
+                
+                //id, name, hp, damage现在数据库中的字段是这4个，因此下面的方法都可以用
                 int id = rs.getInt("id");// 可以使用字段名
                 String name = rs.getString(2);// 也可以使用字段的顺序
                 float hp = rs.getFloat("hp");
