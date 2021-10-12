@@ -203,7 +203,7 @@ public interface UserDao {
 }
 ```
 
-- 接口实现类（由原来的UserDaoImpl转换为一个Mapper配置文件）**连接了Dao接口和实体类**
+- 接口实现类（由原来的UserDaoImpl转换为一个Mapper.xml配置文件）**连接了Dao接口和实体类**
 
 ```xml
 <mapper namespace="com.daryl.dao.UserDao">     <!--命名空间，绑定一个对应的Dao接口（Mapper）-->
