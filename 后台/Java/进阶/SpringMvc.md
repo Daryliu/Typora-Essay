@@ -59,3 +59,68 @@ hello表示控制器
    1. 查看控制台输出，看一下是不是缺少了什么jar包。
    2. 如果jar包存在，显示无法输出，就在IDEA的项目发布中，添加lib依赖！
    3. 重启Tomcat 即可解决！
+
+
+
+#### ServletAPI
+
+通过设置ServletAPI , 不需要视图解析器 .
+
+1、通过HttpServletResponse进行输出
+
+2、通过HttpServletResponse实现重定向
+
+3、通过HttpServletResponse实现转发
+
+```java
+@Controller
+public class ResultGo {
+
+   @RequestMapping("/result/t1")
+   public void test1(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
+       rsp.getWriter().println("Hello,Spring BY servlet API");
+  }
+
+   @RequestMapping("/result/t2")
+   public void test2(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
+       rsp.sendRedirect("/index.jsp");
+  }
+
+   @RequestMapping("/result/t3")
+   public void test3(HttpServletRequest req, HttpServletResponse rsp) throws Exception {
+       //转发
+       req.setAttribute("msg","/result/t3");
+       req.getRequestDispatcher("/WEB-INF/jsp/test.jsp").forward(req,rsp);
+  }
+
+}
+```
+
+#### SpringMVC
+
+**通过SpringMVC来实现转发和重定向 - 无需视图解析器；**
+
+测试前，需要将视图解析器注释掉
+
+```
+@Controller
+public class ResultSpringMVC {
+   @RequestMapping("/rsm/t1")
+   public String test1(){
+       //转发
+       return "/index.jsp";
+  }
+
+   @RequestMapping("/rsm/t2")
+   public String test2(){
+       //转发二
+       return "forward:/index.jsp";
+  }
+
+   @RequestMapping("/rsm/t3")
+   public String test3(){
+       //重定向
+       return "redirect:/index.jsp";
+  }
+}
+```
