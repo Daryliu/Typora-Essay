@@ -1224,3 +1224,35 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
 
      
 
+### Mybatis动态sql
+
+#### `foreach`
+
+在sql中对集合进行迭代。
+
+```sql
+<delete id="deleteBatch"> 
+　　　　delete from user where id in
+　　　　<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+　　　　　　#{id}
+　　　　</foreach>
+　　</delete>
+```
+
+　　我们假如说参数为----  int[] ids = {1,2,3,4,5}  ----那么打印之后的SQL如下：
+
+　　delete form user where id in (1,2,3,4,5)
+
+　　释义：
+
+　　　　`collection` ：collection属性的值有三个分别是list、array、map三种，分别对应的参数类型为：List、数组、map集合，我在上面传的参数为数组，所以值为array
+
+　　　　`item` ： 表示在迭代过程中每一个元素的别名
+
+　　　　`index` ：表示在迭代过程中每次迭代到的位置（下标）
+
+　　　　`open` ：前缀
+
+　　　　`close` ：后缀
+
+　　　　`separator` ：分隔符，表示迭代时每个元素之间以什么分隔我们通常可以将之用到批量删除、添加等操作中。
