@@ -1197,3 +1197,13 @@ Porject language level 选择11
 File->Project Structure->Modules->language level 选择11
 ```
 
+### 3、mybatis-spring
+
+在 MyBatis-Spring 中，可使用SqlSessionFactoryBean来创建 SqlSessionFactory。要配置这个工厂 bean，只需要把下面代码放在 Spring 的 XML 配置文件中：
+
+```sql
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <property name="dataSource" ref="dataSource" />
+</bean>
+```
+
