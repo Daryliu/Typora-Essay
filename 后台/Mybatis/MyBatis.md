@@ -1226,11 +1226,11 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
 
 ### Mybatis动态sql
 
-#### `foreach`
+#### 1、`foreach`
 
 在sql中对集合进行迭代。
 
-```sql
+```xml
 <delete id="deleteBatch"> 
 　　　　delete from user where id in
 　　　　<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
@@ -1245,6 +1245,8 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
 
 　　释义：
 
+​		你可以将任何可迭代对象（如 List、Set 等）、Map 对象或者数组对象传递给 foreach 作为集合参数。当使用可迭代对象或者数组时，index 是当前迭代的次数，item 的值是本次迭代获取的元素。<u>当使用 Map 对象（或者 Map.Entry 对象的集合）时，index 是键，item 是值。</u>
+
 　　　　`collection` ：collection属性的值有三个分别是list、array、map三种，分别对应的参数类型为：List、数组、map集合，我在上面传的参数为数组，所以值为array
 
 　　　　`item` ： 表示在迭代过程中每一个元素的别名
@@ -1256,3 +1258,32 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
 　　　　`close` ：后缀
 
 　　　　`separator` ：分隔符，表示迭代时每个元素之间以什么分隔我们通常可以将之用到批量删除、添加等操作中。
+
+#### 2、`trim`
+
+```xml
+select * from user 
+
+　　<trim prefix="WHERE" prefixoverride="AND |OR">
+
+　　　　<if test="name != null and name.length()>0"> AND name=#{name}</if>
+
+　　　　<if test="gender != null and gender.length()>0"> AND gender=#{gender}</if>
+
+　　</trim>
+```
+
+　　假如说name和gender的值都不为null的话打印的SQL为：select * from user where 空格  name = 'xx' and gender = 'xx'
+
+　　在空格的地方是不存在第一个and的，上面两个属性的意思如下：
+
+　　`prefix`：前缀　　　　　　
+
+　　`prefixoverride`：去掉第一个and或者是or
+
+​		`suffixoverride`：去掉最后一个符号
+
+​		`suffix`：后缀
+
+
+
