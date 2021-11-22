@@ -346,7 +346,7 @@
 
    
 
-4. 在代码编写过程中继承proto文件中编译好的接口时，若发现找不到，要将target/generated-sources/protobuf 路径下grpc-java和Java文件夹设置为Generated sorces Root。
+4. <font color = "red">**<u>在代码编写过程中继承proto文件中编译好的接口时，若发现找不到，要将target/generated-sources/protobuf 路径下grpc-java和Java文件夹设置为Generated sorces Root。</u>**</font>
 
 
 
