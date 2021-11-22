@@ -102,7 +102,7 @@ public class ResultGo {
 
 测试前，需要将视图解析器注释掉
 
-```
+```java
 @Controller
 public class ResultSpringMVC {
    @RequestMapping("/rsm/t1")
@@ -124,3 +124,4 @@ public class ResultSpringMVC {
   }
 }
 ```
+
