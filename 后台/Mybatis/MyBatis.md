@@ -1222,7 +1222,21 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
      }
      ```
 
-     
+
+
+
+#### 13、mybatis中$与#的区别？
+
+- #{} 占位符，**对应的变量自动加上单引号** ，能防止sql 注入
+- ${}  拼接符
+
+1. 不论是单个参数，还是多个参数，一律都<u>建议使用注解@Param("")</u>
+2. 能用 #{} 的地方就用 #{}，<u>不用或少用 ${}</u>
+3. <u>表名作参数时，必须用 ${}</u>，不然生成后sql会加上单引号。如：select * from ${tableName}
+4. order by 时，必须用 ${}。如：select * from t_user order by ${columnName}
+5. 使用 ${} 时，要注意何时加或不加单引号，即 ${} 和 '${}'
+
+注：@Param("") 是 @Param(value="") 的简写
 
 ### Mybatis动态sql
 
