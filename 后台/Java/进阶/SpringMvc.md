@@ -125,3 +125,25 @@ public class ResultSpringMVC {
 }
 ```
 
+##### @RequestBody
+
+在Spring MVC的Controller层使用@RequestBody接收Content-Type为application/json的数据时，默认**<u>支持<font color = "red">Map方式</font>和<font color = "red">对象方式</font>参数</u>**
+
+```Java
+@RequestMapping(value = "/{code}/saveUser", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonResult saveUser(@PathVariable("code") Integer code, @RequestBody Map<String, Object> datas,@RequestBody User user) {
+    //其中datas是map类型、user是User对象
+    }
+```
+
+##### @ApiModelProperty()
+
+@ApiModelProperty()用于方法，字段； 表示对model属性的说明或者数据操作更改 
+
+- value------字段说明 
+- name------重写属性名字 
+- dataType------重写属性类型 
+- required------是否必填 
+- example------举例说明 
+- hidden------隐藏
