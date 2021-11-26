@@ -1207,3 +1207,29 @@ File->Project Structure->Modules->language level 选择11
 </bean>
 ```
 
+### 4、
+
+#### Spring @RestController、@Controller区别
+
+**用@Controller，返回的是页面；@Controller加上@ResponseBody，返回的是JSON、XML或其他文本。**
+
+```kotlin
+@Controller
+@RequestMapping("/test")
+public class MyController1 {
+    
+    @ResponseBody
+    @GetMapping(path="/get1", produces = "text/plain;charset=utf-8")
+    public String getMethod1(String str) {
+        return str;
+    }
+
+    @GetMapping(path="/get2", produces = "text/plain;charset=utf-8")
+    public String getMethod2(String str) {
+        return str;
+    }
+}
+```
+
+**访问 /test/get1，并携带参数 str="index" ，返回 index 字符串。
+ 访问 /test/get2，并携带参数 str="index" ，返回名为 index 页面，如index.jsp。**
