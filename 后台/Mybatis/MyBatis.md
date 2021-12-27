@@ -1273,6 +1273,145 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
 
 　　　　`separator` ：分隔符，表示迭代时每个元素之间以什么分隔我们通常可以将之用到批量删除、添加等操作中。
 
+（1）如果传入的是单参数且参数类型是一个List的时候，collection属性值为list
+（2）如果传入的是单参数且参数类型是一个array数组的时候，collection的属性值为array
+（3）如果传入的参数是多个的时候，我们就需要把它们封装成一个Map了，当然单参数也可以封装成Map，实际上如果你在传入参数的时候，在mybatis里面也是会把它封装成一个Map的，map的key就是参数名，所以这个时候collection属性值就是传入的List或array对象在自己封装的map里面的key
+
+下面分别来看看上述三种情况的示例代码：
+
+**单参数List的类型**：
+
+```xml
+<select id="getBlogs" parameterType="java.util.List" resultType="Blog">
+    select * from t_blog where id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+    </foreach>
+</select>
+```
+
+上述collection的值为list，对应的Mapper是这样的：
+
+```java
+public List getBlogs(List ids);
+```
+
+测试代码如下所示：
+
+```java
+SqlSession sqlSession = sqlSessionFactory.openSession();
+BlogMapper blogMapper = sqlSession.getMapper(BlogMapper.class);
+List ids = new ArrayList();
+ids.add(1);
+ids.add(3);
+ids.add(6);
+List blogs = blogMapper.getBlogs(ids);
+for (Blog blog : blogs)
+{
+    System.out.println(blog);
+}
+sqlSession.close();
+```
+
+**单参数array数组的类型：**
+
+```xml
+<select id="getBlogs" parameterType="java.util.ArrayList" resultType="Blog">
+    select * from t_blog where id in
+    <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select> 
+```
+
+上述collection为array，对应的Mapper代码：
+
+```java
+public List getBlogs(int[] ids);
+```
+
+对应的测试代码：
+
+```java
+SqlSession sqlSession = sqlSessionFactory.openSession();
+BlogMapper blogMapper = session.getMapper(BlogMapper.class);
+int[] ids = new int[] {1,3,6,9};
+List blogs = blogMapper.getBlogs(ids);
+for (Blog blog : blogs)
+{
+    System.out.println(blog);
+}
+session.close();
+```
+
+**自己把参数封装成Map的类型：**
+
+```xml
+<select id="getBlogs" parameterType="java.util.HashMap" resultType="Blog">
+    select * from t_blog where title like "%"#{title}"%" and id in
+    <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+```
+
+上述collection的值为ids，是传入的参数Map的key，对应的Mapper代码：
+
+```java
+public List getBlogs(Map params);
+```
+
+对应测试代码：
+
+```java
+SqlSession sqlSession = sqlSessionFactory.openSession();
+BlogMapper blogMapper = session.getMapper(BlogMapper.class);
+final List ids = new ArrayList();
+ids.add(1);
+ids.add(2);
+ids.add(3);
+ids.add(6);
+ids.add(7);
+ids.add(9);
+Map params = new HashMap();
+params.put("ids", ids);
+params.put("title", "历史");
+List blogs = blogMapper.getBlogs(params);
+for (Blog blog : blogs)
+{
+    System.out.println(blog);
+}
+session.close();
+```
+
+##### 2、collection标签用法介绍
+
+collection标签是集合标签，它与association关联标签几乎是一样的，它们相似的程度之高，常常让人产生误解。关联association标签处理“一对一”类型的关系，例如：一个博客有一个用户。
+
+```java
+public Class Blog 
+{
+    private Author author;
+}
+```
+
+但一个博客有很多文章（Post)，collection标签处理“一对多”类型的关系，这可以用下面的写法来表示：
+
+```java
+public Class Blog 
+{
+    private List<Post> posts;
+}
+```
+
+collection标签和association标签的用法非常相似，区别在于ofType属性：
+
+```xml
+<association property="author" javaType="Author">
+
+<collection property="posts" javaType="ArrayList" ofType="Post" />
+```
+
 #### 2、`trim`
 
 ```xml
