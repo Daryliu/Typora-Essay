@@ -346,7 +346,7 @@
 
    
 
-4. 在代码编写过程中继承proto文件中编译好的接口时，若发现找不到，要将target/generated-sources/protobuf 路径下grpc-java和Java文件夹设置为Generated sorces Root。
+4. <font color = "red">**<u>在代码编写过程中继承proto文件中编译好的接口时，若发现找不到，要将target/generated-sources/protobuf 路径下grpc-java和Java文件夹设置为Generated sorces Root。</u>**</font>
 
 
 
@@ -360,8 +360,20 @@
 
 - proto3不支持proto2中的required和optional关键字。
 
-##### grpc测试问题
+#### grpc测试问题
 
 1. Error: 13 INTERNAL: Received RST_STREAM with error code 2
 
    可能出现的原因是输出多条数据，但是用的是simple rpc，改为返回结果为  stream就可以了
+
+
+
+#### 部署问题
+
+###### 智图云起Java微服务打包流程
+
+1. clone 公司内Java框架
+2. git add submodule “proto的git地址”
+3. 在命令行中输入mvn package和mvn install（注册到本地的maven库中）
+4. 打开实际应用的微服务，配置完pom.xml文件并写完代码
+5. 在命令行中输入mvn package进行打包

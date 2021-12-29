@@ -203,7 +203,7 @@ public interface UserDao {
 }
 ```
 
-- 接口实现类（由原来的UserDaoImpl转换为一个Mapper配置文件）**连接了Dao接口和实体类**
+- 接口实现类（由原来的UserDaoImpl转换为一个Mapper.xml配置文件）**连接了Dao接口和实体类**
 
 ```xml
 <mapper namespace="com.daryl.dao.UserDao">     <!--命名空间，绑定一个对应的Dao接口（Mapper）-->
@@ -1222,5 +1222,221 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
      }
      ```
 
-     
+
+
+
+#### 13、mybatis中$与#的区别？
+
+- #{} 占位符，**对应的变量自动加上单引号** ，能防止sql 注入
+- ${}  拼接符
+
+1. 不论是单个参数，还是多个参数，一律都<u>建议使用注解@Param("")</u>
+2. 能用 #{} 的地方就用 #{}，<u>不用或少用 ${}</u>
+3. <u>表名作参数时，必须用 ${}</u>，不然生成后sql会加上单引号。如：select * from ${tableName}
+4. order by 时，必须用 ${}。如：select * from t_user order by ${columnName}
+5. 使用 ${} 时，要注意何时加或不加单引号，即 ${} 和 '${}'
+
+注：@Param("") 是 @Param(value="") 的简写
+
+### Mybatis动态sql
+
+#### 1、`foreach`
+
+在sql中对集合进行迭代。
+
+```xml
+<delete id="deleteBatch"> 
+　　　　delete from user where id in
+　　　　<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+　　　　　　#{id}
+　　　　</foreach>
+　　</delete>
+```
+
+　　我们假如说参数为----  int[] ids = {1,2,3,4,5}  ----那么打印之后的SQL如下：
+
+　　delete form user where id in (1,2,3,4,5)
+
+　　释义：
+
+​		你可以将任何可迭代对象（如 List、Set 等）、Map 对象或者数组对象传递给 foreach 作为集合参数。当使用可迭代对象或者数组时，index 是当前迭代的次数，item 的值是本次迭代获取的元素。<u>当使用 Map 对象（或者 Map.Entry 对象的集合）时，index 是键，item 是值。</u>
+
+　　　　`collection` ：collection属性的值有三个分别是list、array、map三种，分别对应的参数类型为：List、数组、map集合，我在上面传的参数为数组，所以值为array
+
+　　　　`item` ： 表示在迭代过程中每一个元素的别名
+
+　　　　`index` ：表示在迭代过程中每次迭代到的位置（下标）
+
+　　　　`open` ：前缀
+
+　　　　`close` ：后缀
+
+　　　　`separator` ：分隔符，表示迭代时每个元素之间以什么分隔我们通常可以将之用到批量删除、添加等操作中。
+
+（1）如果传入的是单参数且参数类型是一个List的时候，collection属性值为list
+（2）如果传入的是单参数且参数类型是一个array数组的时候，collection的属性值为array
+（3）如果传入的参数是多个的时候，我们就需要把它们封装成一个Map了，当然单参数也可以封装成Map，实际上如果你在传入参数的时候，在mybatis里面也是会把它封装成一个Map的，map的key就是参数名，所以这个时候collection属性值就是传入的List或array对象在自己封装的map里面的key
+
+下面分别来看看上述三种情况的示例代码：
+
+**单参数List的类型**：
+
+```xml
+<select id="getBlogs" parameterType="java.util.List" resultType="Blog">
+    select * from t_blog where id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+    </foreach>
+</select>
+```
+
+上述collection的值为list，对应的Mapper是这样的：
+
+```java
+public List getBlogs(List ids);
+```
+
+测试代码如下所示：
+
+```java
+SqlSession sqlSession = sqlSessionFactory.openSession();
+BlogMapper blogMapper = sqlSession.getMapper(BlogMapper.class);
+List ids = new ArrayList();
+ids.add(1);
+ids.add(3);
+ids.add(6);
+List blogs = blogMapper.getBlogs(ids);
+for (Blog blog : blogs)
+{
+    System.out.println(blog);
+}
+sqlSession.close();
+```
+
+**单参数array数组的类型：**
+
+```xml
+<select id="getBlogs" parameterType="java.util.ArrayList" resultType="Blog">
+    select * from t_blog where id in
+    <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select> 
+```
+
+上述collection为array，对应的Mapper代码：
+
+```java
+public List getBlogs(int[] ids);
+```
+
+对应的测试代码：
+
+```java
+SqlSession sqlSession = sqlSessionFactory.openSession();
+BlogMapper blogMapper = session.getMapper(BlogMapper.class);
+int[] ids = new int[] {1,3,6,9};
+List blogs = blogMapper.getBlogs(ids);
+for (Blog blog : blogs)
+{
+    System.out.println(blog);
+}
+session.close();
+```
+
+**自己把参数封装成Map的类型：**
+
+```xml
+<select id="getBlogs" parameterType="java.util.HashMap" resultType="Blog">
+    select * from t_blog where title like "%"#{title}"%" and id in
+    <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+```
+
+上述collection的值为ids，是传入的参数Map的key，对应的Mapper代码：
+
+```java
+public List getBlogs(Map params);
+```
+
+对应测试代码：
+
+```java
+SqlSession sqlSession = sqlSessionFactory.openSession();
+BlogMapper blogMapper = session.getMapper(BlogMapper.class);
+final List ids = new ArrayList();
+ids.add(1);
+ids.add(2);
+ids.add(3);
+ids.add(6);
+ids.add(7);
+ids.add(9);
+Map params = new HashMap();
+params.put("ids", ids);
+params.put("title", "历史");
+List blogs = blogMapper.getBlogs(params);
+for (Blog blog : blogs)
+{
+    System.out.println(blog);
+}
+session.close();
+```
+
+##### 2、collection标签用法介绍
+
+collection标签是集合标签，它与association关联标签几乎是一样的，它们相似的程度之高，常常让人产生误解。关联association标签处理“一对一”类型的关系，例如：一个博客有一个用户。
+
+```java
+public Class Blog 
+{
+    private Author author;
+}
+```
+
+但一个博客有很多文章（Post)，collection标签处理“一对多”类型的关系，这可以用下面的写法来表示：
+
+```java
+public Class Blog 
+{
+    private List<Post> posts;
+}
+```
+
+collection标签和association标签的用法非常相似，区别在于ofType属性：
+
+```xml
+<association property="author" javaType="Author">
+
+<collection property="posts" javaType="ArrayList" ofType="Post" />
+```
+
+#### 2、`trim`
+
+```xml
+select * from user 
+
+　　<trim prefix="WHERE" prefixoverride="AND |OR">
+
+　　　　<if test="name != null and name.length()>0"> AND name=#{name}</if>
+
+　　　　<if test="gender != null and gender.length()>0"> AND gender=#{gender}</if>
+
+　　</trim>
+```
+
+　　假如说name和gender的值都不为null的话打印的SQL为：select * from user where 空格  name = 'xx' and gender = 'xx'
+
+　　在空格的地方是不存在第一个and的，上面两个属性的意思如下：
+
+　　`prefix`：前缀　　　　　　
+
+　　`prefixoverride`：去掉第一个and或者是or
+
+​		`suffixoverride`：去掉最后一个符号
+
+​		`suffix`：后缀
+
+
 

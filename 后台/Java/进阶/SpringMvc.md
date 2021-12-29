@@ -59,3 +59,91 @@ hello表示控制器
    1. 查看控制台输出，看一下是不是缺少了什么jar包。
    2. 如果jar包存在，显示无法输出，就在IDEA的项目发布中，添加lib依赖！
    3. 重启Tomcat 即可解决！
+
+
+
+#### ServletAPI
+
+通过设置ServletAPI , 不需要视图解析器 .
+
+1、通过HttpServletResponse进行输出
+
+2、通过HttpServletResponse实现重定向
+
+3、通过HttpServletResponse实现转发
+
+```java
+@Controller
+public class ResultGo {
+
+   @RequestMapping("/result/t1")
+   public void test1(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
+       rsp.getWriter().println("Hello,Spring BY servlet API");
+  }
+
+   @RequestMapping("/result/t2")
+   public void test2(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
+       rsp.sendRedirect("/index.jsp");
+  }
+
+   @RequestMapping("/result/t3")
+   public void test3(HttpServletRequest req, HttpServletResponse rsp) throws Exception {
+       //转发
+       req.setAttribute("msg","/result/t3");
+       req.getRequestDispatcher("/WEB-INF/jsp/test.jsp").forward(req,rsp);
+  }
+
+}
+```
+
+#### SpringMVC
+
+**通过SpringMVC来实现转发和重定向 - 无需视图解析器；**
+
+测试前，需要将视图解析器注释掉
+
+```java
+@Controller
+public class ResultSpringMVC {
+   @RequestMapping("/rsm/t1")
+   public String test1(){
+       //转发
+       return "/index.jsp";
+  }
+
+   @RequestMapping("/rsm/t2")
+   public String test2(){
+       //转发二
+       return "forward:/index.jsp";
+  }
+
+   @RequestMapping("/rsm/t3")
+   public String test3(){
+       //重定向
+       return "redirect:/index.jsp";
+  }
+}
+```
+
+##### @RequestBody
+
+在Spring MVC的Controller层使用@RequestBody接收Content-Type为application/json的数据时，默认**<u>支持<font color = "red">Map方式</font>和<font color = "red">对象方式</font>参数</u>**
+
+```Java
+@RequestMapping(value = "/{code}/saveUser", method = RequestMethod.POST)
+    @ResponseBody
+    public JsonResult saveUser(@PathVariable("code") Integer code, @RequestBody Map<String, Object> datas,@RequestBody User user) {
+    //其中datas是map类型、user是User对象
+    }
+```
+
+##### @ApiModelProperty()
+
+@ApiModelProperty()用于方法，字段； 表示对model属性的说明或者数据操作更改 
+
+- value------字段说明 
+- name------重写属性名字 
+- dataType------重写属性类型 
+- required------是否必填 
+- example------举例说明 
+- hidden------隐藏

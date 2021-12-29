@@ -1276,14 +1276,43 @@ public class MyTest {
 - 公共业务就交给代理角色，实现了 业务的分工
 - 公共业务发生扩展的时候，方便集中管理
 - 一个真实角色就会产生一个代理角色，代码量会翻倍，开发效率会降低
+- 一个动态代理类可以代理多个类，只要是实现同一个接口即可。
 
 
 
 #### AOP
 
+AOP：面向切面编程。面向切面编程，通过预编译方式和运行期动态代理实现程序功能的统一维护的一 种技术。AOP是0OP的延续， 是软件开发中的一一个热点，也是Spring框架中的一个重要内容，是函数式编程的一种衍生范型。利用AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发效率。
 
+##### AOP在Spring中的作用
 
+**提供声明式事务。允许用户自定义界面。**
 
+● 横切关注点:<u>跨越应用程序多个模块的方法或功能</u>。即是，与我们业务逻辑无关的，但是我们需要关注的部分，就是横切关注点。如日志,安全,缓存,事务等等...
+● 切面(ASPECT) :横切关注点被模块化的特殊对象。即，它是一个类。
+● 通知(Advice) :切面必须要完成的工作。即,它是类中的一一个方法。
+● 目标(Target) :被通知对象。
+● 代理(Proxy) :向目标对象应用通知之后创建的对象。
+● 切入点(PointCut) :切面通知执行的"地点”的定义;
+● 连接点(JointPoint) :与切入点匹配的执行点。
+
+##### 在Spring中使用aop
+
+1. 需要先提前导入依赖
+
+   ```xml
+   		<dependency>
+               <groupId>org.aspectj</groupId>
+               <artifactId>aspectjweaver</artifactId>
+               <version>1.9.7</version>
+               <scope>runtime</scope>
+           </dependency>
+   ```
+
+2. 
+
+   1. 方法一：使用Spring的api接口https://github.com/Daryliu/SpringMaven/tree/master/JDproxy/src/main/java/com/ldy
+   2. 方法二：使用自定义类实现接口
 
 
 
@@ -1307,3 +1336,39 @@ Porject language level 选择11
 File->Project Structure->Modules->language level 选择11
 ```
 
+### 3、mybatis-spring
+
+在 MyBatis-Spring 中，可使用SqlSessionFactoryBean来创建 SqlSessionFactory。要配置这个工厂 bean，只需要把下面代码放在 Spring 的 XML 配置文件中：
+
+```sql
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <property name="dataSource" ref="dataSource" />
+</bean>
+```
+
+### 4、
+
+#### Spring @RestController、@Controller区别
+
+**用@Controller，返回的是页面；@Controller加上@ResponseBody，返回的是JSON、XML或其他文本。**
+
+```kotlin
+@Controller
+@RequestMapping("/test")
+public class MyController1 {
+    
+    @ResponseBody
+    @GetMapping(path="/get1", produces = "text/plain;charset=utf-8")
+    public String getMethod1(String str) {
+        return str;
+    }
+
+    @GetMapping(path="/get2", produces = "text/plain;charset=utf-8")
+    public String getMethod2(String str) {
+        return str;
+    }
+}
+```
+
+**访问 /test/get1，并携带参数 str="index" ，返回 index 字符串。
+ 访问 /test/get2，并携带参数 str="index" ，返回名为 index 页面，如index.jsp。**
