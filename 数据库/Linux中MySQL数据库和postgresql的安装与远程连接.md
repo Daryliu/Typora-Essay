@@ -207,3 +207,14 @@ CREATE UNIQUE INDEX unit_id ON info_project (unit_id);
 
 
 ##### Postgresql
+
+PG数据库插入geometry类型的数据时,要指定数据的类型
+
+如果不指定“SRID=4326”，报错：ERROR: Geometry SRID (0) does not match column SRID (4326)
+
+例如:原数据是01010000000377A04EF9655C401EED2C388B5C3B40则要加上SRID=4326;
+
+```sql
+INSERT INTO "public"."bore" ("st_type","pro_id", "boretype", "borename", "prefix", "sectionnum", "offset", "boreheight", "borey", "borex", "posdescrib", "worksitename", "bore_depth", "recorddate", "checkdate", "recorder", "checker", "remarks", "borelat", "borelon") VALUES ('SRID=4326;01010000000377A04EF9655C401EED2C388B5C3B40', 1, '机动钻孔',  'Jz-Ⅲ2105-187529-8', 'DK', 187529.082951, 7.455399, 155.692657, 3054673.824000, 504207.067400, '田', '罗家塘特大桥', 39.009998, '2021/10/07', '2021/10/10','王圣', '万济华', NULL, 27.361499, 113.593341);
+```
+
