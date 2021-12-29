@@ -42,6 +42,145 @@
 
 ### 1、IOC控制反转
 
+#### 1.1浅显易懂的讲解
+
+**假设一个场景：**目前有三个角色，买水果的人（用户），卖水果的人（业务层），水果（持久化层），
+
+
+
+![img](https://pic3.zhimg.com/50/v2-00e41ad1cf13fa3ef0cc5e4f990a239c_720w.jpg?source=1940ef5c)![img](https://pic3.zhimg.com/80/v2-00e41ad1cf13fa3ef0cc5e4f990a239c_720w.jpg?source=1940ef5c)
+
+
+
+先写一个接口，
+
+```java
+public interface Fruit {
+    public void get();
+}
+```
+
+现在实现3种水果的类，为了方便展示，把它们先写在一起，
+
+```java
+// Apple.java
+public class Apple implements Fruit{
+    public void get() {
+        System.out.println("get an apple");
+    }
+}
+
+// Orange.java
+public class Banana implements Fruit{
+    public void get() {
+        System.out.println("get a banana");
+    }
+}
+
+// Banana.java
+public class Orange implements Fruit{
+    public void get() {
+        System.out.println("get a organe");
+    }
+}
+```
+
+现在实现一个业务层，也就是从3个水果类中获取水果，
+
+```text
+// UserService.java
+public class UserService {
+    private Fruit fruit = new Apple();
+    public void getFruit() {
+        fruit.get();
+    }
+}
+```
+
+然后，实现一个用户类，
+
+```java
+// User.java
+public class User {
+    public static void main(String[] args) {
+        UserService user = new UserService();
+        user.getFruit();
+    }
+}
+```
+
+上述就是我们实现一个程序的惯用方式，这样看上去没有什么问题，目前我们调用业务层`UserService`获取到**苹果**，那么试想一下，**如果现在我想获取橘子怎么办？**这样就需要修改业务层代码，
+
+```java
+// UserService.java
+public class UserService {
+    private Fruit fruit = new Orange();
+    public void getFruit() {
+        fruit.get();
+    }
+}
+```
+
+也许很多同学会认为这样没什么问题，那就修改一下业务层代码啊？
+
+显然，这不是一个优秀的程序员做的事情，**每当用户需求做出改变时，我们的代码都要做出相应的修改**，那么有两个问题，
+
+- 如果工程量较大，修改的内容较多怎么办？
+- 如果我们修改代码对其他业务造成影响怎么办？
+
+所以，一个好的设计思路就应该在不改变原代码的基础上实现我们想要的功能。
+
+那么，接下来就应该转变思维，考虑一下，目前的**控制权**在业务层，所以每次用户需求改变时，业务层也要跟着改变，既然这样，我们把控制权交给用户不就行了吗？
+
+下面来修改一下业务层的代码实现[控制权](https://www.zhihu.com/search?q=控制权&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"answer"%2C"sourceId"%3A1217542529})的转换，
+
+```java
+public class UserService {
+    private Fruit fruit;
+    public void setFruit(Fruit fruit) {
+        this.fruit = fruit;
+    }
+    public void getFruit() {
+        this.fruit.get();
+    }
+}
+```
+
+细心的同学应该可以看得出改变，我在加了一个**set**方法，使得用户层可以**注入**不同的对象，这样我们在用户层传入哪个对象，就会获得哪个结果，
+
+```python
+// 1. 获取橘子
+public class User {
+    public static void main(String[] args) {
+        UserImpl user = new UserImpl();
+        user.setFruit(new Orange());    //在这里注入对象
+        user.getFruit();
+    }
+}
+//2. 获取香蕉
+public class User {
+    public static void main(String[] args) {
+        UserImpl user = new UserImpl();
+        user.setFruit(new Banana());
+        user.getFruit();
+    }
+}
+```
+
+现在来总结一下，经过改变前后到底发生了什么，
+
+![img](https://pic3.zhimg.com/50/v2-523bbb35239175af0fb74a6583ffe55a_720w.jpg?source=1940ef5c)![img](https://pic3.zhimg.com/80/v2-523bbb35239175af0fb74a6583ffe55a_720w.jpg?source=1940ef5c)
+
+上图展示的很明确，就是控制权的反转，之前[主动权](https://www.zhihu.com/search?q=主动权&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"answer"%2C"sourceId"%3A1217542529})在业务层，每次用户提出需求业务层就需要跟着做出改变，现在我们把主动权交给了用户，它传进什么，就得到什么样的结果，这样业务代码就不用跟着改变了。
+
+**这就是IOC（控制反转）的核心思想。**
+
+
+
+
+
+#### 1.2实际讲解
+
 之前的接口流程
 
 1. UserDao接口
