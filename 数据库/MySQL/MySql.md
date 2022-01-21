@@ -417,3 +417,19 @@ public class JDBCUtils {
    **解决方式**：定位到MySQL Server 8.0的设置目录下：C:\ProgramData\MySQL\MySQL Server 8.0，打开my.ini文件，在[mysqld]节点下，加入default-time-zone='+8:00'默认时区设置，如下截图：
 
    ![img](https://img-blog.csdn.net/2018072614352773?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlbjIyMDQ=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+   
+2. 问题：`org.springframework.transaction.CannotCreateTransactionException: Could not open JDBC Connection for transaction; nested exception is java.sql.SQLException: Connections could not be acquired from the underlying database!`
+
+   本次解决方式：实现MySQL远程访问；可能是没连接到druid.properties文件，获取不到内容，把.xml配置文件中的内容换一下！
+
+   ```xml
+   <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+           <property name="driverClass" value="${driver}"/>${driver}换成com.mysql.cj.jdbc.Driver
+           <property name="jdbcUrl" value="${url}"/>换成url=jdbc:mysql://10.97.9.83:3306/geochemweb?useSSL=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT
+           <property name="user" value="${user}"/>换成user=root
+           <property name="password" value="${password}"/>换成password=Gao@2021
+   ```
+
+   
+
+3. 
