@@ -14,6 +14,7 @@
 6. 查看某个库中某个表的记录：select * from apps limit 1;
 7. 显示字符集：\encoding
 8. 退出psgl：\q
+8. 显示表空间信息：\db+
 
 ###### **`EXPLAIN`函数**
 
@@ -116,7 +117,7 @@ select date_trunc('weak',now())  + interval '1d 1minute';		//每周的周二第�
 
 ![](https://github.com/Daryliu/Typora-Essay/blob/master/image/%E6%97%B6%E9%97%B4%E5%88%86%E7%89%87.png)
 
-
+**通过时间进行分组排序时，由于 Timescale 的自动时间和空间分区，使用 TimescaleDB 与普通 PostgreSQL 数据库相比，在大型数据集上的执行速度提高了 20 倍。**
 
 #### 3.1 超表和块
 
@@ -274,7 +275,27 @@ SELECT remove_reorder_policy('conditions', if_exists => true);
 
 ##### 3.1.10 attach_tablespace
 
-将表空间附加到超表并使用它来存储块。[表空间](https://www.postgresql.org/docs/current/manage-ag-tablespaces.html)是文件系统上的一个 目录，它允许控制单个表和索引在文件系统上的存储位置。一个常见的用例是为特定的存储磁盘创建一个表空间，允许将表存储在那里。
+###### 3.1.10.1 表空间
+
+**表空间即PostgreSQL存储数据文件的位置**，其中包括数据库对象。如，索引、表等。
+ PostgreSQL使用表空间映射逻辑名称和磁盘物理位置。默认提供了两个表空间：
+
+>  pg_default 表空间存储用户数据，用于共享系统目录
+>  pg_global 表空间存储全局数据
+
+###### 3.1.10.2 创建表空间
+
+```sql
+#表空间名称不能以pg开头，因为这些名称为系统表空间保留。默认执行CREATE TABLESPACE语句的用户是表空间的拥有者。如果需要给其他用户赋权，可以值后面指定owner关键词。directory_path是表空间使用空目录的绝对路径，PostgreSQL的用户必须拥有该目录的权限可以进行读写操作。一旦创建好表空间，可以在CREATE DATABASE, CREATE TABLE 和 CREATE INDEX 语句中使用。
+CREATE TABLESPACE tablespace_name OWNER user_name LOCATION directory_path;
+#例子：
+postgres=# create tablespace "sensor_tablespace" location '/data/postgresData';
+
+#删除表空间
+drop tablespace if exists 表空间名
+```
+
+将表空间附加到超表并使用它来存储块。[表空间](https://www.postgresql.org/docs/current/manage-ag-tablespaces.html)是文件系统上的一个 目录，它允许控制单个表和索引在文件系统上的存储位置。一个常见的用例是为特定的存储磁盘创建一个表空间，允许将表存储在那里。🌙
 
 ```sql
 #将表空间disk1附加到超表conditions：
@@ -284,7 +305,7 @@ SELECT attach_tablespace('disk2', 'conditions', if_not_attached => true);
 
 ##### 3.1.11 detach_tablespace
 
-从一个或多个超表中分离表空间。这*仅*意味着*新*块不会放置在分离的表空间上。
+从一个或多个超表中分离表空间。这仅意味着新块不会放置在分离的表空间上。
 
 ```sql
 #从超表conditions中分离表空间disk1：
@@ -442,3 +463,4 @@ SELECT * FROM chunks_detailed_size('dist_table')
 ```
 
 #### 3.2 压缩
+
