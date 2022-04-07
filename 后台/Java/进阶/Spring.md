@@ -8,7 +8,7 @@
 
 十分和气不俗。
 
-
+**idea崩溃可全局搜idea.bat。在最后添加pause然后运行，查找错误原因。**
 
 中文网站:https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/overview.html#overview-spring
 
