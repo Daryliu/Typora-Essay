@@ -1372,3 +1372,19 @@ public class MyController1 {
 
 **访问 /test/get1，并携带参数 str="index" ，返回 index 字符串。
  访问 /test/get2，并携带参数 str="index" ，返回名为 index 页面，如index.jsp。**
+
+#### java 中component_Spring中@Component和@Bean的区别
+
+Spring管理Bean分为两个部分，一个是注册Bean，一个装配Bean。
+
+完成这两个动作有三种方式，一种是使用自动配置的方式、一种是使用JavaConfig的方式，一种就是使用XML配置的方式。
+
+**@Component 把普通pojo实例化到spring容器中**
+
+**@Bean 需要在配置类中使用，即类上需要加上@Configuration注解**
+
+两者都能通过@Autowired注解自动装配
+
+在应用开发的过程中，如果想要将**<u>第三方库</u>**中的组件装配到你的应用中，在这种情况下，是<u>没有办法在它的类上添加@Component和@Autowired注解</u>的，因此就不能使用自动化装配的方案了。
+
+但是可以通过xml 或者在@Configuration配置类中通过@Bean进行配置
