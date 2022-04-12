@@ -102,6 +102,82 @@ public class ResultGo {
 
 测试前，需要将视图解析器注释掉
 
+##### @RequestMapping
+
+**语法**：@RequestMapping(value=”xxx”)
+
+可定义在Controller类上，也可定义在Controller类中的方法上。
+如果Controller类上和方法上都加了@RequestMapping，
+
+请求路径：类上的@RequestMapping的value+方法上的@RequestMapping的value;
+
+**如果value不以/开头springmvc会自动加上。**
+Controller类上的@RequestMapping可以省略，此时请求路径就是：方法上的@RequestMapping的value.
+
+###### 映射方式
+
+**ant风格映射**
+
+```
+?：通配一个字符  @RequestMapping("sss?/show2")
+ 
+*:通配0个或多个字符  @RequestMapping("aa*/show3")
+ 
+**:通配0个或多个路径    @RequestMapping("**/show4")
+```
+
+**占位符映射**
+
+```
+语法：@RequestMapping(value=”show5/{id}/{name}”)
+ 
+请求路径：http://localhost:8080/hello/show5/1/james
+ 
+ 
+占位符不仅有通配的作用，还可以传递参数。
+ 
+例如：
+@PathVariable(“id”) Long id可以接收id参数；
+@PathVariable(“name”) String name可以接收name参数。
+ 
+ 
+@RequestMapping("show5/{id}/{name}")
+public ModelAndView test5(@PathVariable("id")Long ids, @PathVariable("name")String names)
+注意：@PathVariable(key)中的key值一定要与占位符的名字一致，而形参的名字可以自定义。
+```
+
+![img](https://img-blog.csdnimg.cn/2018111721523714.png)
+
+**组合注解**
+
+```
+@GetMapping：相当于@RequestMapping(method=RequestMethod.GET)
+ 
+@PostMapping：相当于@RequestMapping(method=RequestMethod.POST)
+ 
+@PutMapping：相当于@RequestMapping(method=RequestMethod.PUT)
+ 
+@DeleteMapping：相当于@RequestMapping(method=RequestMethod.DELETE)
+```
+
+**请求参数限定**
+
+```
+语法：@RequestMapping(value=””,params=””)
+ 
+ params=”id”    :     请求参数中必须有id
+ 
+ params=”!id”   :     请求参数中不能包含id
+ 
+ params=”id=1”  :     请求参数中id的值必须为1
+ 
+ params=”id!=1”  :    请求参数中id的值必须不能等于1
+ 
+ params={“id”,”name”}  :   请求参数中必须包含id和name两个参数
+```
+
+
+
 ```java
 @Controller
 public class ResultSpringMVC {
@@ -125,9 +201,13 @@ public class ResultSpringMVC {
 }
 ```
 
+
+
+
+
 ##### @RequestBody
 
-在Spring MVC的Controller层使用@RequestBody接收Content-Type为application/json的数据时，默认**<u>支持<font color = "red">Map方式</font>和<font color = "red">对象方式</font>参数</u>**
+在Spring MVC的Controller层使用@RequestBody接收Content-Type为application/json的数据时，默认**<u>支持<font color = "red">Map方式</font>和<font color = "red">对象方式</font>参数</u>**；**接收前端传递给后端的<font color = "red">json字符串</font>，一个方法中只能有一个**
 
 ```Java
 @RequestMapping(value = "/{code}/saveUser", method = RequestMethod.POST)
@@ -135,6 +215,73 @@ public class ResultSpringMVC {
     public JsonResult saveUser(@PathVariable("code") Integer code, @RequestBody Map<String, Object> datas,@RequestBody User user) {
     //其中datas是map类型、user是User对象
     }
+```
+
+##### @RequestParam
+
+将请求参数绑定到你控制器的方法参数上（是springmvc中接收普通参数的注解）。**无法读取application/json格式数据；**
+
+语法：@RequestParam(value=”参数名”,required=”true/false”,defaultValue=””)
+
+value：参数名
+
+required：是否包含该参数，默认为true，表示该请求路径中必须包含该参数，如果不包含就报错。
+
+defaultValue：默认参数值，如果设置了该值，required=true将失效，自动为false,如果没有传该参数，就使用默认值
+
+```Java
+package com.day01springmvc.controller;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+ 
+@Controller
+@RequestMapping("hello")
+public class HelloController2 {
+ 
+    /**
+     * 接收普通请求参数
+     * http://localhost:8080/hello/show16?name=linuxsir
+     * url输入的参数中的name必须要和@RequestParam("name")一致
+     * @return
+     */
+    @RequestMapping("show16")
+    public ModelAndView test16(@RequestParam("name")String name){
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("hello2");
+        mv.addObject("msg", "接收普通的请求参数：" + name);
+        return mv;
+    }
+ 
+    /**
+     * 接收普通请求参数
+     * http://localhost:8080/hello/show17
+     * url中没有name参数不会报错、有就显示出来
+     * @return
+     */
+    @RequestMapping("show17")
+    public ModelAndView test17(@RequestParam(value="name",required=false)String name){
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("hello2");
+        mv.addObject("msg", "接收普通请求参数：" + name);
+        return mv;
+    }
+ 
+    /**
+     * 接收普通请求参数
+     * http://localhost:8080/hello/show18?name=998 显示为998
+     * http://localhost:8080/hello/show18?name 显示为hello
+     * @return
+     */
+    @RequestMapping("show18")
+    public ModelAndView test18(@RequestParam(value="name",required=true,defaultValue="hello")String name){
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("hello2");
+        mv.addObject("msg", "接收普通请求参数：" + name);
+        return mv;
+    }
+ 
+}
 ```
 
 ##### @ApiModelProperty()
