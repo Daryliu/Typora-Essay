@@ -8,7 +8,7 @@
 
 十分和气不俗。
 
-**idea崩溃可全局搜idea.bat。在最后添加pause然后运行，查找错误原因。**
+> **idea崩溃可全局搜idea.bat。在最后添加pause然后运行，查找错误原因。**
 
 中文网站:https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/overview.html#overview-spring
 
@@ -48,7 +48,7 @@
 
 
 
-![img](https://pic3.zhimg.com/50/v2-00e41ad1cf13fa3ef0cc5e4f990a239c_720w.jpg?source=1940ef5c)![img](https://pic3.zhimg.com/80/v2-00e41ad1cf13fa3ef0cc5e4f990a239c_720w.jpg?source=1940ef5c)
+![img](https://pic3.zhimg.com/50/v2-00e41ad1cf13fa3ef0cc5e4f990a239c_720w.jpg?source=1940ef5c)
 
 
 
@@ -169,7 +169,7 @@ public class User {
 
 现在来总结一下，经过改变前后到底发生了什么，
 
-![img](https://pic3.zhimg.com/50/v2-523bbb35239175af0fb74a6583ffe55a_720w.jpg?source=1940ef5c)![img](https://pic3.zhimg.com/80/v2-523bbb35239175af0fb74a6583ffe55a_720w.jpg?source=1940ef5c)
+![img](https://pic3.zhimg.com/50/v2-523bbb35239175af0fb74a6583ffe55a_720w.jpg?source=1940ef5c)
 
 上图展示的很明确，就是控制权的反转，之前[主动权](https://www.zhihu.com/search?q=主动权&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"answer"%2C"sourceId"%3A1217542529})在业务层，每次用户提出需求业务层就需要跟着做出改变，现在我们把主动权交给了用户，它传进什么，就得到什么样的结果，这样业务代码就不用跟着改变了。
 
