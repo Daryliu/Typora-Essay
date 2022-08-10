@@ -1438,5 +1438,53 @@ select * from user
 
 ​		`suffix`：后缀
 
+3. 将需要复用的SQL片段抽取到 sql 标签中（sql复用）
+```xml
+<sql id="brand_column">
+	id, brand_name as brandName, company_name as companyName, ordered, description, status
+</sql>
+```
+ 在原sql语句中进行引用
+ 使用 include 标签引用上述的 SQL 片段，而 refid 指定上述 SQL 片段的id值。
 
+ ```xml
+ <select id="selectAll" resultType="brand">
+    select
+    <include refid="brand_column" />
+    from tb_brand;
+</select>
+ ```
+ 方法二：
+ 起别名 + sql片段的方式可以解决上述问题，但是它也存在问题。如果还有功能只需要查询部分字段，而不是查询所有字段，那么我们就需要再定义一个 SQL 片段，这就显得不是那么灵活。
+
+那么我们也可以使用resultMap来定义字段和属性的映射关系的方式解决上述问题。
+
+~~~xml
+在映射配置文件中使用resultMap定义 字段 和 属性 的映射关系
+```xml
+<resultMap id="brandResultMap" type="brand">
+<!--
+        id：完成主键字段的映射
+            column：表的列名
+            property：实体类的属性名
+        result：完成一般字段的映射
+            column：表的列名
+            property：实体类的属性名
+    -->
+<result column="brand_name" property="brandName"/>
+<result column="company_name" property="companyName"/>
+#注意：在上面只需要定义 字段名 和 属性名 不一样的映射，而一样的则不需要专门定义出来。
+</resultMap>
+~~~
+SQL语句正常编写
+
+```xml
+<select id="selectAll" resultMap="brandResultMap">
+    select *
+    from tb_brand;
+</select>
+```
+
+
+​    
 
