@@ -1,3 +1,5 @@
+[TOC]
+
 ### MyBatis
 
 ---
@@ -1253,9 +1255,10 @@ INSERT INTO student(`id`,`name`,`tid`) VALUES (`5`,'秦老师',`1`);
 　　</delete>
 ```
 
-　　我们假如说参数为----  int[] ids = {1,2,3,4,5}  ----那么打印之后的SQL如下：
-
-　　delete form user where id in (1,2,3,4,5)
+> 　　我们假如说参数为----  int[] ids = {1,2,3,4,5}  ----那么打印之后的SQL如下：
+>
+> 　　`delete form user where id in (1,2,3,4,5)`
+>
 
 　　释义：
 
@@ -1384,7 +1387,7 @@ for (Blog blog : blogs)
 session.close();
 ```
 
-##### 2、collection标签用法介绍
+#### 2、collection（多个参数）
 
 collection标签是集合标签，它与association关联标签几乎是一样的，它们相似的程度之高，常常让人产生误解。关联association标签处理“一对一”类型的关系，例如：一个博客有一个用户。
 
@@ -1412,7 +1415,50 @@ collection标签和association标签的用法非常相似，区别在于ofType�
 <collection property="posts" javaType="ArrayList" ofType="Post" />
 ```
 
-#### 2、`trim`
+##### 附注
+
+- Dao层使用`@Param` 注解时
+
+```xml
+#Dao层使用`@Param` 注解时
+User select(@Param("username") String username,@Param("password") String password);
+#xml文件内部的值可以写成username、password，更加直观
+<select id="select" resultType="user">
+	select *
+    from tb_user
+    where 
+    	username=#{username}
+    	and password=#{password}
+</select>
+```
+
+- #Dao层不使用`@Param` 注解时
+
+```xml
+#Dao层不使用`@Param` 注解时
+User select(String username,String password);
+
+#xml文件内部的值可以写成arg0、arg1或者param1、param2
+<select id="select" resultType="user">
+	select *
+    from tb_user
+    where 
+    	username=#{arg0}
+    	and password=#{arg1}
+</select>
+或者
+<select id="select" resultType="user">
+	select *
+    from tb_user
+    where 
+    	username=#{param1}
+    	and password=#{param2}
+</select>
+```
+
+> 结论：以后接口参数是多个时，在每个参数上都使用 `@Param` 注解。这样代码的可读性更高。
+
+#### 3、`trim`
 
 ```xml
 select * from user 
@@ -1438,13 +1484,17 @@ select * from user
 
 ​		`suffix`：后缀
 
-3. 将需要复用的SQL片段抽取到 sql 标签中（sql复用）
+#### 4、sql复用resultType、resultMap
+
+将需要复用的SQL片段抽取到 sql 标签中
+
 ```xml
 <sql id="brand_column">
 	id, brand_name as brandName, company_name as companyName, ordered, description, status
 </sql>
 ```
- 在原sql语句中进行引用
+#####  在原sql语句中进行引用resultType
+
  使用 include 标签引用上述的 SQL 片段，而 refid 指定上述 SQL 片段的id值。
 
  ```xml
@@ -1454,7 +1504,8 @@ select * from user
     from tb_brand;
 </select>
  ```
- 方法二：
+#####  方法二：resultMap
+
  起别名 + sql片段的方式可以解决上述问题，但是它也存在问题。如果还有功能只需要查询部分字段，而不是查询所有字段，那么我们就需要再定义一个 SQL 片段，这就显得不是那么灵活。
 
 那么我们也可以使用resultMap来定义字段和属性的映射关系的方式解决上述问题。
@@ -1485,6 +1536,85 @@ SQL语句正常编写
 </select>
 ```
 
+####     5、if：条件判断
 
-​    
+```xml
+<select id="selectByCondition" resultMap="brandResultMap">
+    select *
+    from tb_brand
+    where
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="companyName != null and companyName != '' ">
+            and company_name like #{companyName}
+        </if>
+        <if test="brandName != null and brandName != '' ">
+            and brand_name like #{brandName}
+        </if>
+</select>
+```
+
+如果第一个值status没有值则会出现`select * from tb_brand where and company_name like ? and brand_name like ?`的情况，where直接接了and，因此需要下面的where标签。
+
+#### 6、where
+
+- 替换where关键字
+- 会动态的去掉第一个条件前的 and
+- 如果所有的参数没有值则不加where关键字
+
+```xml
+<select id="selectByCondition" resultMap="brandResultMap">
+    select *
+    from tb_brand
+    <where>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="companyName != null and companyName != '' ">
+            and company_name like #{companyName}
+        </if>
+        <if test="brandName != null and brandName != '' ">
+            and brand_name like #{brandName}
+        </if>
+    </where>
+</select>
+```
+
+> 注意：需要给每个条件前都加上 and 关键字。
+
+#### 7、choose单个条件生效
+
+```xml
+<select id="selectByConditionSingle" resultMap="brandResultMap">
+    select *
+    from tb_brand
+    <where>
+        <choose><!--相当于switch-->
+            <when test="status != null"><!--相当于case-->
+                status = #{status}
+            </when>
+            <when test="companyName != null and companyName != '' "><!--相当于case-->
+                company_name like #{companyName}
+            </when>
+            <when test="brandName != null and brandName != ''"><!--相当于case-->
+                brand_name like #{brandName}
+            </when>
+        </choose>
+    </where>
+</select>
+```
+
+#### 8、注解动态sql
+
+```java
+String sql = new SQL() {{
+select("P.id,P.password,P.username");
+if(id!=null) {
+where("P.id like #{id}");
+if(username!=null) {
+where("P.username like #{username}");
+}
+}}.toString();
+```
 
