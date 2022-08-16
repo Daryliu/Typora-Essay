@@ -1,3 +1,5 @@
+[TOC]
+
 ### Linux中MySQL数据库和postgresql的安装与远程连接
 
 #### 1、MySQL安装与配置
