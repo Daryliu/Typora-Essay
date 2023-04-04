@@ -78,6 +78,30 @@ SELECT date_trunc('year', TIMESTAMP '2001-02-16 20:38:40');								Result: 2001-
 select date_trunc('weak',now())  + interval '1d 1minute';		//每周的周二第一分钟	
 ```
 
+###### 被占用强制删除
+
+> 设置数据库为禁止连接
+
+```sql
+UPDATE pg_database 
+SET datallowconn = 'false' 
+WHERE datname = 'db_name';
+```
+
+> 中断当前库所有连接会话
+
+```sql
+SELECT pg_terminate_backend(pid) 
+FROM pg_stat_activity 
+WHERE datname = 'db_name';
+```
+
+> 删除库
+
+```sql
+drop database db_name;
+```
+
 
 
 ### 2、安装问题
