@@ -102,6 +102,18 @@ WHERE datname = 'db_name';
 drop database db_name;
 ```
 
+> 查看数据库创建时间
+
+```sql
+select datname,(pg_stat_file(format('%s/%s/PG_VERSION',
+case
+when spcname='pg_default' then 'base'
+else 'pg_tblspc/'||t2.oid||'/PG_11_201804061/'
+end,
+t1.oid))).*
+from pg_database t1,pg_tablespace t2 where t1.dattablespace=t2.oid;
+```
+
 
 
 ### 2、安装问题
